@@ -1,0 +1,39 @@
+.dropdown-container {
+  position: relative;
+  display: inline-flex;
+}
+
+.dropdown-trigger {
+  cursor: pointer;
+  display: inline-flex;
+}
+
+.dropdown-panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: var(--bg-white);
+  border: 1px solid var(--stroke-dark);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  z-index: 100;
+  min-width: 120px;
+  overflow: hidden;
+  animation: dropdownFadeIn 0.12s ease-out;
+
+  &.align-right {
+    left: auto;
+    right: 0;
+  }
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
