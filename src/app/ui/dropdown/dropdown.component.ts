@@ -10,21 +10,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-dropdown',
   standalone: true,
   imports: [CommonModule],
-  template: `
-    <div class="dropdown-container">
-      <div class="dropdown-trigger" (click)="toggle($event)">
-        <ng-content select="[trigger]"></ng-content>
-      </div>
-      <div
-        class="dropdown-panel"
-        *ngIf="isOpen"
-        [class]="panelClass"
-        [class.align-right]="align === 'right'"
-      >
-        <ng-content select="[panel]"></ng-content>
-      </div>
-    </div>
-  `,
+  templateUrl: './dropdown.component.html',
   styleUrls: ['./dropdown.component.scss']
 })
 export class DropdownComponent {

@@ -8,13 +8,7 @@ import { WorkOrderStatus, STATUS_CONFIGS, StatusConfig } from '../../models/work
 @Component({
   selector: 'app-status-badge',
   standalone: true,
-  template: `
-    <span
-      class="status-badge"
-      [style.color]="config.textColor"
-      [style.background]="config.bgColor"
-    >{{ config.label }}</span>
-  `,
+  templateUrl: './status-badge.component.html',
   styleUrls: ['./status-badge.component.scss']
 })
 export class StatusBadgeComponent {
