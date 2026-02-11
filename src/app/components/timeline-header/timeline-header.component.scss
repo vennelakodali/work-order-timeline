@@ -1,0 +1,115 @@
+.timeline-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+
+  .title {
+    font-family: var(--font-family);
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  .timescale-selector {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .timescale-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--primary);
+    background: var(--primary-bg);
+    padding: 4px 10px;
+    border-radius: 100px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+
+  .timescale-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: none;
+    border: 1px solid var(--stroke-dark);
+    font-family: var(--font-family);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 5px 12px;
+    border-radius: 6px;
+    transition: all 0.15s;
+
+    &:hover {
+      border-color: var(--primary-light);
+      color: var(--primary);
+    }
+
+    &.open {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    svg {
+      transition: transform 0.2s;
+      color: var(--text-secondary);
+    }
+
+    &.open svg {
+      transform: rotate(180deg);
+      color: var(--primary);
+    }
+  }
+
+  .timescale-option {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    font-family: var(--font-family);
+    font-size: 13px;
+    padding: 8px 16px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+
+    &:hover {
+      background: var(--bg-hover);
+    }
+
+    &.active {
+      color: var(--primary);
+      font-weight: 600;
+      background: var(--primary-bg);
+    }
+  }
+
+  .today-btn {
+    margin-left: auto;
+    background: var(--bg-white);
+    border: 1px solid var(--stroke-dark);
+    border-radius: 6px;
+    font-family: var(--font-family);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    padding: 6px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: var(--shadow-btn);
+
+    &:hover {
+      border-color: var(--primary-light);
+      color: var(--primary);
+      background: var(--primary-bg);
+    }
+  }
+}
