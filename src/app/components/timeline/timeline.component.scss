@@ -1,0 +1,196 @@
+// =============================================================================
+// Timeline Component Styles
+// =============================================================================
+
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+// ---- Main Timeline Container ----
+.timeline-container {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  border: 1px solid var(--stroke);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg-white);
+}
+
+// ---- Fixed Left Panel ----
+.work-center-panel {
+  flex: 0 0 var(--work-center-width);
+  width: var(--work-center-width);
+  border-right: 1px solid var(--stroke);
+  z-index: 10;
+  background: var(--bg-white);
+  overflow-y: auto;
+
+  .work-center-header {
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--stroke);
+    background: var(--bg-light);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  .work-center-row {
+    height: var(--row-height);
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--stroke);
+    transition: background 0.15s;
+
+    &.hovered {
+      background: var(--bg-hover);
+    }
+  }
+
+  .work-center-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+// ---- Scrollable Timeline Grid ----
+.timeline-scroll-wrapper {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: auto;
+  position: relative;
+}
+
+.timeline-grid {
+  position: relative;
+  min-height: 100%;
+}
+
+// ---- Column Headers ----
+.column-headers {
+  display: flex;
+  height: var(--header-height);
+  border-bottom: 1px solid var(--stroke);
+  background: var(--bg-light);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.column-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  border-right: 1px solid var(--stroke);
+  user-select: none;
+
+  &.current-period {
+    background: var(--primary-bg);
+    color: var(--primary);
+    font-weight: 600;
+  }
+}
+
+// ---- Timeline Rows ----
+.timeline-row {
+  display: flex;
+  height: var(--row-height);
+  border-bottom: 1px solid var(--stroke);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &.hovered {
+    background: var(--bg-hover);
+  }
+}
+
+.column-cell {
+  flex: 0 0 auto;
+  height: 100%;
+  border-right: 1px solid var(--stroke);
+
+  &.current-period {
+    background: rgba(86, 89, 255, 0.02);
+  }
+}
+
+// ---- "Click to add" hint ----
+.click-to-add {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  font-weight: 450;
+  color: var(--text-disabled);
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+// ---- Today Indicator ----
+.today-indicator {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 4;
+  pointer-events: none;
+  width: 2px;
+
+  .today-label {
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--primary-bg);
+    color: var(--primary);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    white-space: nowrap;
+    letter-spacing: 0.2px;
+  }
+
+  .today-line {
+    position: absolute;
+    top: var(--header-height);
+    bottom: 0;
+    left: 0;
+    width: 2px;
+    background: var(--primary);
+    opacity: 0.35;
+  }
+}
+
+// ---- Panel Backdrop ----
+.panel-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.08);
+  z-index: 999;
+}

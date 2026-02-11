@@ -1,0 +1,102 @@
+<!-- Timeline Header: Title, Timescale Selector, Today Button -->
+<app-timeline-header
+  [currentTimescale]="timescale"
+  (timescaleChange)="onTimescaleChange($event)"
+  (todayClick)="scrollToToday()"
+/>
+
+<!-- Main Timeline Grid -->
+<div class="timeline-container">
+  <!-- Fixed Left Panel: Work Center Names -->
+  <div class="work-center-panel">
+    <div class="work-center-header">Work Center</div>
+    <div
+      *ngFor="let center of workCenters; trackBy: trackByCenter"
+      class="work-center-row"
+      [class.hovered]="hoveredRowId === center.docId"
+      (mouseenter)="onRowHover(center.docId)"
+      (mouseleave)="onRowHover(null)"
+    >
+      <span class="work-center-name">{{ center.data.name }}</span>
+    </div>
+  </div>
+
+  <!-- Scrollable Timeline Grid -->
+  <div class="timeline-scroll-wrapper" #timelineScroll>
+    <div class="timeline-grid" [style.width.px]="totalTimelineWidth">
+      <!-- Column Headers -->
+      <div class="column-headers">
+        <div
+          *ngFor="let col of columns; trackBy: trackByColumn"
+          class="column-header"
+          [class.current-period]="isCurrentPeriod(col)"
+          [style.width.px]="columnWidth"
+        >
+          {{ col.label }}
+        </div>
+      </div>
+
+      <!-- Current Day Indicator -->
+      <div
+        class="today-indicator"
+        [style.left.px]="todayPosition"
+      >
+        <div class="today-label">{{ todayLabel }}</div>
+        <div class="today-line"></div>
+      </div>
+
+      <!-- Rows for each Work Center -->
+      <div
+        *ngFor="let center of workCenters; trackBy: trackByCenter"
+        class="timeline-row"
+        [class.hovered]="hoveredRowId === center.docId"
+        (mouseenter)="onRowHover(center.docId)"
+        (mouseleave)="onRowHover(null)"
+        (click)="onTimelineClick($event, center.docId)"
+      >
+        <!-- Column grid cells -->
+        <div
+          *ngFor="let col of columns; trackBy: trackByColumn"
+          class="column-cell"
+          [class.current-period]="isCurrentPeriod(col)"
+          [style.width.px]="columnWidth"
+        ></div>
+
+        <!-- "Click to add" hint for empty rows -->
+        <span
+          class="click-to-add"
+          *ngIf="hoveredRowId === center.docId && getOrdersForCenter(center.docId).length === 0"
+        >+ Click to add</span>
+
+        <!-- Work Order Bars -->
+        <app-work-order-bar
+          *ngFor="let order of getOrdersForCenter(center.docId); trackBy: trackByOrder"
+          [order]="order"
+          [leftPx]="calcBarStyle(order).left"
+          [widthPx]="calcBarStyle(order).width"
+          (edit)="onEditOrder($event)"
+          (delete)="onDeleteOrder($event)"
+        />
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide-out Panel for Create/Edit -->
+<app-slide-panel
+  *ngIf="panelOpen"
+  [mode]="panelMode"
+  [workCenterId]="panelWorkCenterId"
+  [startDate]="panelStartDate"
+  [editingOrder]="editingOrder"
+  (close)="onPanelClose()"
+  (saved)="onPanelSave()"
+/>
+
+<!-- Backdrop overlay when panel is open -->
+<div
+  class="panel-backdrop"
+  *ngIf="panelOpen"
+  (click)="onPanelClose()"
+  @fadeIn
+></div>
