@@ -1,0 +1,37 @@
+<div
+  class="work-order-bar"
+  [ngClass]="statusClass"
+  [style.left.px]="leftPx"
+  [style.width.px]="widthPx"
+  [class.hovered]="isHovered || actionsDropdown?.isOpen"
+  (mouseenter)="isHovered = true"
+  (mouseleave)="onMouseLeave()"
+>
+  <!-- Work order name -->
+  <span class="bar-name" [title]="order.data.name">{{ order.data.name }}</span>
+
+  <!-- Status badge -->
+  <app-status-badge [status]="order.data.status" />
+
+  <!-- Three-dot actions menu (always rendered, visible on hover) -->
+  <app-dropdown align="right" #actionsDropdown>
+    <button trigger class="actions-btn" title="Actions">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+        <circle cx="3" cy="8" r="1.5"/>
+        <circle cx="8" cy="8" r="1.5"/>
+        <circle cx="13" cy="8" r="1.5"/>
+      </svg>
+    </button>
+    <div panel>
+      <button class="action-item" (click)="onEdit($event)">Edit</button>
+      <button class="action-item delete" (click)="onDelete($event)">Delete</button>
+    </div>
+  </app-dropdown>
+
+  <!-- Tooltip on hover -->
+  <div class="bar-tooltip" *ngIf="isHovered && !actionsDropdown?.isOpen">
+    <strong>{{ order.data.name }}</strong>
+    <span>{{ order.data.status }}</span>
+    <span>{{ order.data.startDate }} &mdash; {{ order.data.endDate }}</span>
+  </div>
+</div>
