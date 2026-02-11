@@ -5,6 +5,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { NgbDatepickerModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { WorkOrderService } from '../../services/work-order.service';
 import { WorkOrderDocument, WorkOrderStatus, PanelMode, STATUS_CONFIGS } from '../../models/work-order.model';
+import { StatusPillComponent } from '../../ui/status-pill/status-pill.component';
 import { isoToNgbDate, ngbDateToIso, ngbDateToDate, formatNgbDate } from '../../utils/date-conversions';
 import { trigger, transition, style, animate } from '@angular/animations';
 
@@ -18,7 +19,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 @Component({
   selector: 'app-slide-panel',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgSelectModule, NgbDatepickerModule],
+  imports: [CommonModule, ReactiveFormsModule, NgSelectModule, NgbDatepickerModule, StatusPillComponent],
   templateUrl: './slide-panel.component.html',
   styleUrls: ['./slide-panel.component.scss'],
   animations: [
@@ -129,11 +130,6 @@ export class SlidePanelComponent implements OnInit {
 
   onCancel(): void {
     this.close.emit();
-  }
-
-  get statusClass(): string {
-    const val = this.form.get('status')?.value;
-    return val ? `status-${val}` : '';
   }
 
   onKeydown(event: KeyboardEvent): void {

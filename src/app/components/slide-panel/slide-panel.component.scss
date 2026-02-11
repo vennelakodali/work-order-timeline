@@ -218,37 +218,10 @@
   }
 }
 
-// ---- Status pill in ng-select ----
+// ---- ng-select overrides for panel context ----
 :host ::ng-deep .ng-select {
   .ng-select-container {
     height: 40px !important;
-    border-radius: 8px !important;
-  }
-}
-
-// Status pills for both selected value and dropdown options
-.status-pill {
-  display: inline-block;
-  font-family: var(--font-family);
-  font-size: 12px;
-  font-weight: 600;
-  padding: 3px 12px;
-  border-radius: 100px;
-
-  &[data-status="open"] {
-    color: var(--status-open-text);
-    background: var(--status-open-bg);
-  }
-  &[data-status="in-progress"] {
-    color: var(--status-in-progress-text);
-    background: var(--status-in-progress-bg);
-  }
-  &[data-status="complete"] {
-    color: var(--status-complete-text);
-    background: var(--status-complete-bg);
-  }
-  &[data-status="blocked"] {
-    color: var(--status-blocked-text);
-    background: var(--status-blocked-bg);
+    border-radius: 5px !important;
   }
 }

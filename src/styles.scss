@@ -19,8 +19,8 @@
   --bg-hover: #F5F5FF;
 
   // Status colors
-  --status-open-text: #5659FF;
-  --status-open-bg: #EEEFFE;
+  --status-open-text: #00B0BF;
+  --status-open-bg:  #E4FDFF;
   --status-open-border: #C5C7FF;
   --status-in-progress-text: #5659FF;
   --status-in-progress-bg: #EEEFFE;
@@ -84,8 +84,9 @@ html, body {
 
   &.ng-select-focused {
     .ng-select-container {
-      border-color: var(--primary) !important;
+      // border-color: var(--primary-light) !important;
       box-shadow: 0 0 0 2px rgba(86, 89, 255, 0.15) !important;
+      // border-radius: 12px 0 0 12px !important;
     }
   }
 
@@ -114,55 +115,6 @@ html, body {
     }
   }
 
-  // Status color pill styling for selected values
-  &.status-open .ng-value-container .ng-value {
-    .ng-value-label {
-      color: var(--status-open-text) !important;
-      background: var(--status-open-bg) !important;
-      border-radius: 100px !important;
-      padding: 3px 12px !important;
-      font-weight: 600;
-      font-size: 12px !important;
-    }
-  }
-  &.status-in-progress .ng-value-container .ng-value {
-    .ng-value-label {
-      color: var(--status-in-progress-text) !important;
-      background: var(--status-in-progress-bg) !important;
-      border-radius: 100px !important;
-      padding: 3px 12px !important;
-      font-weight: 600;
-      font-size: 12px !important;
-    }
-  }
-  &.status-complete .ng-value-container .ng-value {
-    .ng-value-label {
-      color: var(--status-complete-text) !important;
-      background: var(--status-complete-bg) !important;
-      border-radius: 100px !important;
-      padding: 3px 12px !important;
-      font-weight: 600;
-      font-size: 12px !important;
-    }
-  }
-  &.status-blocked .ng-value-container .ng-value {
-    .ng-value-label {
-      color: var(--status-blocked-text) !important;
-      background: var(--status-blocked-bg) !important;
-      border-radius: 100px !important;
-      padding: 3px 12px !important;
-      font-weight: 600;
-      font-size: 12px !important;
-    }
-  }
-
-  // Also style the dropdown options with pill indicators
-  .ng-dropdown-panel-items .ng-option {
-    &.ng-option-selected,
-    &.ng-option-marked.ng-option-selected {
-      background: var(--bg-hover) !important;
-    }
-  }
 }
 
 // ---- ngb-datepicker overrides ----

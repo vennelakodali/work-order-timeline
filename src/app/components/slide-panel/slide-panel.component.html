@@ -50,14 +50,13 @@
         bindValue="value"
         [clearable]="false"
         [searchable]="false"
-        [class]="statusClass"
         placeholder="Select status"
       >
         <ng-template ng-label-tmp let-item="item">
-          <span class="status-pill" [attr.data-status]="item.value">{{ item.label }}</span>
+          <app-status-pill [status]="item.value" />
         </ng-template>
         <ng-template ng-option-tmp let-item="item">
-          <span class="status-pill" [attr.data-status]="item.value">{{ item.label }}</span>
+          <app-status-pill [status]="item.value" />
         </ng-template>
       </ng-select>
     </div>
