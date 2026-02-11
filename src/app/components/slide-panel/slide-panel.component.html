@@ -1,0 +1,128 @@
+<!-- Slide-out Panel -->
+<div class="slide-panel" @slideIn (keydown)="onKeydown($event)" tabindex="0">
+  <!-- Panel Header -->
+  <div class="panel-header">
+    <div class="panel-title-group">
+      <h2 class="panel-title">Work Order Details</h2>
+      <p class="panel-subtitle">Specify the dates, name and status for this order</p>
+    </div>
+    <div class="panel-actions">
+      <button class="btn-cancel" (click)="onCancel()">Cancel</button>
+      <button class="btn-primary" (click)="onSubmit()">
+        {{ mode === 'edit' ? 'Save' : 'Create' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Overlap Error Alert -->
+  <div class="error-alert" *ngIf="overlapError">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="#E53935">
+      <path d="M8 1C4.13 1 1 4.13 1 8s3.13 7 7 7 7-3.13 7-7-3.13-7-7-7zm0 11a1 1 0 110-2 1 1 0 010 2zm1-4H7V4h2v4z"/>
+    </svg>
+    <span>{{ overlapError }}</span>
+  </div>
+
+  <!-- Form -->
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="panel-form">
+    <!-- Work Order Name -->
+    <div class="form-group">
+      <label class="form-label" for="wo-name">Work Order Name</label>
+      <input
+        id="wo-name"
+        type="text"
+        class="form-input"
+        formControlName="name"
+        placeholder="Enter work order name..."
+        [class.error]="form.get('name')?.invalid && form.get('name')?.touched"
+      />
+      <span class="field-error" *ngIf="form.get('name')?.invalid && form.get('name')?.touched">
+        Work order name is required.
+      </span>
+    </div>
+
+    <!-- Status (ng-select with pill-styled options) -->
+    <div class="form-group">
+      <label class="form-label">Status</label>
+      <ng-select
+        formControlName="status"
+        [items]="statusOptions"
+        bindLabel="label"
+        bindValue="value"
+        [clearable]="false"
+        [searchable]="false"
+        [class]="statusClass"
+        placeholder="Select status"
+      >
+        <ng-template ng-label-tmp let-item="item">
+          <span class="status-pill" [attr.data-status]="item.value">{{ item.label }}</span>
+        </ng-template>
+        <ng-template ng-option-tmp let-item="item">
+          <span class="status-pill" [attr.data-status]="item.value">{{ item.label }}</span>
+        </ng-template>
+      </ng-select>
+    </div>
+
+    <!-- End Date -->
+    <div class="form-group">
+      <label class="form-label">End date</label>
+      <div class="date-input-wrapper">
+        <input
+          class="form-input date-display"
+          [value]="formatDate(form.get('endDate')?.value)"
+          readonly
+          placeholder="Select end date"
+          (click)="endDp.toggle()"
+          [class.error]="form.hasError('dateRange') && form.touched"
+        />
+        <input
+          type="text"
+          class="date-hidden"
+          ngbDatepicker
+          #endDp="ngbDatepicker"
+          formControlName="endDate"
+          [container]="'body'"
+          (dateSelect)="endDp.close()"
+        />
+        <button type="button" class="date-toggle" (click)="endDp.toggle()">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="3" width="12" height="11" rx="2" />
+            <path d="M2 7h12M5 1v3M11 1v3" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Start Date -->
+    <div class="form-group">
+      <label class="form-label">Start date</label>
+      <div class="date-input-wrapper">
+        <input
+          class="form-input date-display"
+          [value]="formatDate(form.get('startDate')?.value)"
+          readonly
+          placeholder="Select start date"
+          (click)="startDp.toggle()"
+          [class.error]="form.hasError('dateRange') && form.touched"
+        />
+        <input
+          type="text"
+          class="date-hidden"
+          ngbDatepicker
+          #startDp="ngbDatepicker"
+          formControlName="startDate"
+          [container]="'body'"
+          (dateSelect)="startDp.close()"
+        />
+        <button type="button" class="date-toggle" (click)="startDp.toggle()">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="3" width="12" height="11" rx="2" />
+            <path d="M2 7h12M5 1v3M11 1v3" />
+          </svg>
+        </button>
+      </div>
+      <span class="field-error" *ngIf="form.hasError('dateRange') && form.touched">
+        End date must be after start date.
+      </span>
+    </div>
+  </form>
+</div>
