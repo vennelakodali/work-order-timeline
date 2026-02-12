@@ -117,7 +117,7 @@ function generateWeekColumns(now: Date): TimelineColumnConfig {
 function generateMonthColumns(now: Date): TimelineColumnConfig {
   const columnWidth = 160;
   const start = new Date(now.getFullYear(), now.getMonth() - 8, 1);
-  const end = new Date(now.getFullYear(), now.getMonth() + 8, 0);
+  const end = new Date(now.getFullYear(), now.getMonth() + 9, 0);
 
   const columns: TimelineColumn[] = [];
   const current = new Date(start);

@@ -43,14 +43,5 @@ export interface StatusConfig {
   label: string;
   textColor: string;
   bgColor: string;
+  borderColor?: string;
 }
-
-/**
- * All status configurations for rendering badges
- */
-export const STATUS_CONFIGS: StatusConfig[] = [
-  { value: 'open', label: 'Open', textColor: 'var(--status-open-text)', bgColor: 'var(--status-open-bg)' },
-  { value: 'in-progress', label: 'In Progress', textColor: 'var(--status-in-progress-text)', bgColor: 'var(--status-in-progress-bg)' },
-  { value: 'complete', label: 'Complete', textColor: 'var(--status-complete-text)', bgColor: 'var(--status-complete-bg)' },
-  { value: 'blocked', label: 'Blocked', textColor: 'var(--status-blocked-text)', bgColor: 'var(--status-blocked-bg)' }
-];

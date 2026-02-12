@@ -50,7 +50,7 @@
         placeholder="Select status"
       >
         <ng-template ng-label-tmp let-item="item">
-          <app-status-pill [status]="item.value" />
+          <app-pill [text]="item.label" [textColor]="item.textColor" [bgColor]="item.bgColor" [borderColor]="item.borderColor" />
         </ng-template>
         <ng-template ng-option-tmp let-item="item">
           <span [attr.data-status]="item.value" class="dropdown-menu-item">{{ item.label }}</span>

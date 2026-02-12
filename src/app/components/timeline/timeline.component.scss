@@ -15,62 +15,11 @@
   display: flex;
   flex: 1;
   min-height: 0;
-  border: 1px solid var(--stroke);
-  border-radius: 8px;
   overflow: hidden;
   background: var(--bg-white);
 }
 
-// ---- Fixed Left Panel ----
-.work-center-panel {
-  flex: 0 0 var(--work-center-width);
-  width: var(--work-center-width);
-  border-right: 1px solid var(--stroke);
-  z-index: 10;
-  background: var(--bg-white);
-  overflow-y: auto;
-
-  .work-center-header {
-    height: var(--header-height);
-    display: flex;
-    align-items: center;
-    padding: 0 16px;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: 1px solid var(--stroke);
-    background: var(--bg-light);
-    position: sticky;
-    top: 0;
-    z-index: 1;
-  }
-
-  .work-center-row {
-    height: var(--row-height);
-    display: flex;
-    align-items: center;
-    padding: 0 16px;
-    border-bottom: 1px solid var(--stroke);
-    transition: background 0.15s;
-
-    &.hovered {
-      background: var(--bg-hover);
-    }
-  }
-
-  .work-center-name {
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-}
-
-// ---- Scrollable Timeline Grid ----
+// ---- Scrollable Timeline Wrapper ----
 .timeline-scroll-wrapper {
   flex: 1;
   overflow-x: auto;
@@ -78,32 +27,81 @@
   position: relative;
 }
 
-.timeline-grid {
+// ---- Timeline Table ----
+.timeline-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  border: none;
+
   position: relative;
-  min-height: 100%;
+  table-layout: fixed;
+  width: 100%;
+  height: 100%;
+
+  thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg-light);
+
+    tr {
+      border: 1px solid var(--separator-border);
+      height: var(--header-height);
+      background: var(--bg-light);
+    }
+
+    th {
+      border: 1px solid var(--separator-border);
+    }
+  }
+
+  tbody {
+    background: var(--bg-white);
+  }
+
+  tr {
+    &.hovered {
+      background: var(--bg-hover);
+    }
+  }
+}
+
+// ---- Work Center Header (First Column Header) ----
+.work-center-header {
+  height: var(--header-height);
+  width: var(--panel-width);
+  min-height: var(--header-height);
+  max-height: var(--header-height);
+  padding: 0 16px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--separator-border);
+  border-right: 1px solid var(--separator-border);
+  border-left: 1px solid var(--separator-border);
+  background: var(--bg-light);
+  text-align: left;
+  vertical-align: middle;
+  position: sticky;
+  left: 0;
+  z-index: 11;
 }
 
 // ---- Column Headers ----
-.column-headers {
-  display: flex;
-  height: var(--header-height);
-  border-bottom: 1px solid var(--stroke);
-  background: var(--bg-light);
-  position: sticky;
-  top: 0;
-  z-index: 5;
-}
-
 .column-header {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  height: var(--header-height);
+  min-height: var(--header-height);
+  max-height: var(--header-height);
   font-size: 11px;
   font-weight: 500;
   color: var(--text-secondary);
+  border-bottom: 1px solid var(--stroke);
   border-right: 1px solid var(--stroke);
+  text-align: center;
+  vertical-align: middle;
   user-select: none;
+  background: var(--bg-light);
 
   &.current-period {
     background: var(--primary-bg);
@@ -112,27 +110,77 @@
   }
 }
 
+// ---- Work Center Cell (First Column) ----
+.work-center-cell {
+  height: var(--row-height);
+  min-height: var(--row-height);
+  max-height: var(--row-height);
+  width: var(--panel-width);
+  padding: 0 16px;
+  border-bottom: 1px solid var(--separator-border);
+  border-right: 1px solid var(--separator-border);
+  border-left: 1px solid var(--separator-border);
+  vertical-align: middle;
+  background: var(--bg-white);
+  position: sticky;
+  left: 0;
+  z-index: 6;
+  background-clip: padding-box; 
+
+  .timeline-row.hovered & {
+    background: var(--bg-hover);
+  }
+}
+
+.work-center-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
 // ---- Timeline Rows ----
 .timeline-row {
-  display: flex;
   height: var(--row-height);
-  border-bottom: 1px solid var(--stroke);
-  position: relative;
+  min-height: var(--row-height);
+  max-height: var(--row-height);
   cursor: pointer;
   transition: background 0.15s;
+  position: relative;
 
   &.hovered {
     background: var(--bg-hover);
   }
 }
 
+// ---- Column Cells ----
 .column-cell {
-  flex: 0 0 auto;
-  height: 100%;
+  height: var(--row-height);
+  min-height: var(--row-height);
+  max-height: var(--row-height);
+  border-bottom: 1px solid var(--stroke);
   border-right: 1px solid var(--stroke);
+  position: relative;
+  vertical-align: middle;
 
   &.current-period {
     background: rgba(86, 89, 255, 0.02);
+  }
+}
+
+// ---- Filler Row ----
+.filler-row {
+  height: 100%;
+  cursor: default;
+
+  .filler-cell {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    border-bottom: none;
   }
 }
 
@@ -142,11 +190,17 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 12px;
-  font-weight: 450;
-  color: var(--text-disabled);
   pointer-events: none;
-  white-space: nowrap;
+  z-index: 2;
+}
+
+// ---- Current period pill ----
+.current-period-pill {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
   z-index: 2;
 }
 
@@ -171,7 +225,6 @@
     padding: 2px 8px;
     border-radius: 10px;
     white-space: nowrap;
-    letter-spacing: 0.2px;
   }
 
   .today-line {

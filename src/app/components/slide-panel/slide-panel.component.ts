@@ -2,12 +2,19 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { NgbDatepickerModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { WorkOrderService } from '../../services/work-order.service';
-import { WorkOrderDocument, WorkOrderStatus, PanelMode, STATUS_CONFIGS } from '../../models/work-order.model';
-import { StatusPillComponent } from '../../ui/status-pill/status-pill.component';
+import { WorkOrderDocument, WorkOrderStatus, PanelMode, StatusConfig } from '../../models/work-order.model';
+import { PillComponent } from '../../ui/pill/pill.component';
 import { isoToNgbDate, ngbDateToIso, ngbDateToDate, formatNgbDate } from '../../utils/date-conversions';
 import { trigger, transition, style, animate } from '@angular/animations';
+
+const STATUS_PILL_CONFIG: StatusConfig[] = [
+  { value: 'open', label: 'Open', textColor: 'var(--status-open-text)', bgColor: 'var(--status-open-pill-bg)', borderColor: 'var(--status-open-pill-border)' },
+  { value: 'in-progress', label: 'In Progress', textColor: 'var(--status-in-progress-text)', bgColor: 'var(--status-in-progress-pill-bg)', borderColor: 'var(--status-in-progress-pill-border)' },
+  { value: 'complete', label: 'Complete', textColor: 'var(--status-complete-text)', bgColor: 'var(--status-complete-pill-bg)', borderColor: 'var(--status-complete-pill-border)' },
+  { value: 'blocked', label: 'Blocked', textColor: 'var(--status-blocked-text)', bgColor: 'var(--status-blocked-pill-bg)', borderColor: 'var(--status-blocked-pill-border)' }
+];
 
 /**
  * Slide Panel Component
@@ -19,7 +26,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 @Component({
   selector: 'app-slide-panel',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgSelectModule, NgbDatepickerModule, StatusPillComponent],
+  imports: [CommonModule, ReactiveFormsModule, NgSelectModule, NgbDatepickerModule, PillComponent],
   templateUrl: './slide-panel.component.html',
   styleUrls: ['./slide-panel.component.scss'],
   animations: [
@@ -46,7 +53,13 @@ export class SlidePanelComponent implements OnInit {
   form!: FormGroup;
   overlapError: string | null = null;
 
-  statusOptions = STATUS_CONFIGS.map(s => ({ value: s.value, label: s.label }));
+  statusOptions = STATUS_PILL_CONFIG.map(s => ({
+    value: s.value,
+    label: s.label,
+    textColor: s.textColor,
+    bgColor: s.bgColor,
+    borderColor: s.borderColor
+  }));
 
   readonly formatDate = formatNgbDate;
 

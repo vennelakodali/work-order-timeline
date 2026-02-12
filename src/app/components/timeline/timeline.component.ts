@@ -7,6 +7,7 @@ import { WorkOrderDocument, PanelMode, TimescaleLevels } from '../../models/work
 import { WorkOrderBarComponent } from '../work-order-bar/work-order-bar.component';
 import { SlidePanelComponent } from '../slide-panel/slide-panel.component';
 import { TimelineHeaderComponent } from '../timeline-header/timeline-header.component';
+import { PillComponent } from '../../ui/pill/pill.component';
 import { generateTimelineColumns, TimelineColumn, TimelineColumnConfig } from '../../utils/timeline-columns';
 import { dateToPosition, positionToDate, getBarStyle } from '../../utils/timeline-positioning';
 import { trigger, transition, style, animate } from '@angular/animations';
@@ -14,7 +15,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 @Component({
   selector: 'app-timeline',
   standalone: true,
-  imports: [CommonModule, WorkOrderBarComponent, SlidePanelComponent, TimelineHeaderComponent],
+  imports: [CommonModule, WorkOrderBarComponent, SlidePanelComponent, TimelineHeaderComponent, PillComponent],
   templateUrl: './timeline.component.html',
   styleUrls: ['./timeline.component.scss'],
   changeDetection: ChangeDetectionStrategy.Default,
@@ -44,6 +45,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
   hoveredRowId: string | null = null;
   todayPosition = 0;
+  readonly workCenterColumnWidth = 380; // Matches --panel-width in styles.scss
 
   private subscriptions = new Subscription();
   private today = new Date();
@@ -78,6 +80,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
   get columns() { return this.columnConfig.columns; }
   get columnWidth() { return this.columnConfig.columnWidth; }
   get totalTimelineWidth(): number { return this.columns.length * this.columnWidth; }
+  get totalTableWidth(): number { return this.workCenterColumnWidth + this.totalTimelineWidth; }
 
   regenerateColumns(): void {
     this.columnConfig = generateTimelineColumns(this.timescale);
@@ -87,7 +90,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
   private recalculateTodayPosition(): void {
     if (!this.columnConfig) return;
     const todayStr = new Date().toISOString().split('T')[0];
-    this.todayPosition = dateToPosition(
+    this.todayPosition = this.workCenterColumnWidth + dateToPosition(
       todayStr,
       this.columnConfig.timelineStartDate,
       this.columnConfig.timelineEndDate,
@@ -149,7 +152,8 @@ export class TimelineComponent implements OnInit, OnDestroy {
     const scrollEl = this.timelineScroll?.nativeElement;
     if (!scrollEl) return;
     const viewportWidth = scrollEl.clientWidth;
-    scrollEl.scrollLeft = this.todayPosition - viewportWidth / 2;
+    // Account for the sticky work center column when centering
+    scrollEl.scrollLeft = this.todayPosition - viewportWidth / 2 - this.workCenterColumnWidth / 2;
   }
 
   onRowHover(centerId: string | null): void {

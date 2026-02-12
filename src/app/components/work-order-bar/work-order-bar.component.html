@@ -1,17 +1,24 @@
 <div
   class="work-order-bar"
-  [ngClass]="statusClass"
   [style.left.px]="leftPx"
   [style.width.px]="widthPx"
   [class.hovered]="isHovered || actionsDropdown?.isOpen"
+  [style.color]="config.textColor"
+  [style.background]="config.bgColor"
+  [style.borderColor]="config.borderColor"
   (mouseenter)="isHovered = true"
   (mouseleave)="onMouseLeave()"
 >
   <!-- Work order name -->
   <span class="bar-name" [title]="order.data.name">{{ order.data.name }}</span>
 
-  <!-- Status badge -->
-  <app-status-badge [status]="order.data.status" />
+  <!-- Status pill -->
+  <app-pill
+    [text]="pillConfig.label"
+    [textColor]="pillConfig.textColor"
+    [bgColor]="pillConfig.bgColor"
+    [borderColor]="pillConfig.borderColor"
+  />
 
   <!-- Three-dot actions menu (always rendered, visible on hover) -->
   <app-dropdown align="right" #actionsDropdown>

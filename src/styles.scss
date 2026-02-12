@@ -20,17 +20,31 @@
 
   // Status colors
   --status-open-text: #00B0BF;
-  --status-open-bg: #E4FDFF;
-  --status-open-border: #C5C7FF;
+  --status-open-pill-bg: #E4FDFF;
+  --status-open-pill-border: #C5C7FF;
+  --status-open-badge-bg: #E4FDFF;
+  --status-open-badge-border: #C5C7FF;
+
   --status-in-progress-text: #3E40DB;
-  --status-in-progress-bg: #D6D8FF;
-  --status-in-progress-border: #C5C7FF;
+  --status-in-progress-pill-bg: #D6D8FF;
+  --status-in-progress-pill-border: #C5C7FF;
+  --status-in-progress-badge-bg: #edeeff;
+  --status-in-progress-badge-border: #DEE0FF;
+  
   --status-complete-text: #08A268;
-  --status-complete-bg: #E1FFCC;
-  --status-complete-border: #A3E4B5;
+  --status-complete-pill-bg: #E1FFCC;
+  --status-complete-pill-border: #A3E4B5;
+  --status-complete-badge-bg: #F8FFF3;
+  --status-complete-badge-border: #D1FAB3;
+
+
+  
   --status-blocked-text: #B13600;
-  --status-blocked-bg: #FCEEB5;
-  --status-blocked-border: #FFCDD2;
+  --status-blocked-pill-bg: #FCEEB5;
+  --status-blocked-pill-border: #FFCDD2;
+  --status-blocked-badge-bg: #FFFCF1;
+  --status-blocked-badge-border: #FFF5CF;
+
 
   // Shadows
   --shadow-sm: 0px 1px 2px rgba(0, 0, 0, 0.06);
@@ -46,7 +60,7 @@
 
   // Sizing
   --header-height: 48px;
-  --row-height: 56px;
+  --row-height: 48px;
   --work-center-width: 220px;
   --panel-width: 380px;
 }
