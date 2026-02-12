@@ -177,6 +177,22 @@ export class TimelineComponent implements OnInit, OnDestroy {
   }
 
   onRowMouseMove(event: MouseEvent, centerId: string): void {
+    // Check if cursor is over the work center column
+    const target = event.target as HTMLElement;
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const xInRow = event.clientX - rect.left;
+    const isOverWorkCenterColumn = target.closest('.work-center-cell') !== null || xInRow < this.workCenterColumnWidth;
+
+    if (isOverWorkCenterColumn) {
+      // Hide button if over work center column
+      if (this.hoverButtonPosition) {
+        this.hoverButtonPosition = null;
+        this.hoveredRowHasNoOrders = false;
+        this.hoverButtonTooltip?.close();
+      }
+      return;
+    }
+
     if (this.hoveredRowId === centerId && this.hoverButtonPosition) {
       // Check if cursor is still near the button area
       const buttonWidth = 100; // Approximate button width
@@ -190,6 +206,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
       if (distanceX > (buttonWidth / 2 + margin) || distanceY > (buttonHeight / 2 + margin)) {
         this.hoverButtonPosition = null;
         this.hoveredRowHasNoOrders = false;
+        this.hoverButtonTooltip?.close();
       }
     } else if (this.hoveredRowId === centerId && !this.hoverButtonPosition) {
       // Show button if we don't have one yet
@@ -198,12 +215,12 @@ export class TimelineComponent implements OnInit, OnDestroy {
   }
 
   private updateHoverButton(event: MouseEvent, centerId: string): void {
-    // Check if cursor is over an existing work order bar
+    // Check if cursor is over the work center column (first column)
     const target = event.target as HTMLElement;
-    const isOverOrderBar = target.closest('app-work-order-bar') !== null;
+    const isOverWorkCenterColumn = target.closest('.work-center-cell') !== null;
 
-    if (isOverOrderBar) {
-      return; // Don't show button over orders
+    if (isOverWorkCenterColumn) {
+      return; // Don't show button over work center column
     }
 
     // Calculate the mouse position relative to the timeline
@@ -211,13 +228,27 @@ export class TimelineComponent implements OnInit, OnDestroy {
     if (!scrollEl) return;
 
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    const xInRow = event.clientX - rect.left + scrollEl.scrollLeft;
+    const xInRow = event.clientX - rect.left;
+
+    // Also check X position - if it's within the work center column width, don't show button
+    if (xInRow < this.workCenterColumnWidth) {
+      return; // Don't show button over work center column area
+    }
+
+    // Check if cursor is over an existing work order bar
+    const isOverOrderBar = target.closest('app-work-order-bar') !== null;
+
+    if (isOverOrderBar) {
+      return; // Don't show button over orders
+    }
+
+    const xInRowWithScroll = xInRow + scrollEl.scrollLeft;
 
     // Check if this position overlaps with any order bar for this work center
     const orders = this.getOrdersForCenter(centerId);
     const isOverEmptySpace = !orders.some(order => {
       const barStyle = this.calcBarStyle(order);
-      return xInRow >= barStyle.left && xInRow <= (barStyle.left + barStyle.width);
+      return xInRowWithScroll >= barStyle.left && xInRowWithScroll <= (barStyle.left + barStyle.width);
     });
 
     if (isOverEmptySpace) {
