@@ -4,7 +4,7 @@ import { StatusConfig, WorkOrderDocument } from '../../models/work-order.model';
 import { DropdownComponent } from '../../ui/dropdown/dropdown.component';
 import { PillComponent } from '../../ui/pill/pill.component';
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
-import { STATUS_BAR_CONFIG, STATUS_PILL_CONFIG } from '../../constants/status-config';
+import { WORK_ORDER_BAR_CONFIG, STATUS_PILL_CONFIG } from '../../constants/status-config';
 
 @Component({
   selector: 'app-work-order-bar',
@@ -26,7 +26,7 @@ export class WorkOrderBarComponent {
   isHovered = false;
 
   get config(): StatusConfig {
-    return STATUS_BAR_CONFIG.find(s => s.value === this.order.data.status) || STATUS_BAR_CONFIG[0];
+    return WORK_ORDER_BAR_CONFIG.find(s => s.value === this.order.data.status) || WORK_ORDER_BAR_CONFIG[0];
   }
 
   get pillConfig(): StatusConfig {

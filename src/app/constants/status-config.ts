@@ -13,7 +13,7 @@ export const STATUS_PILL_CONFIG: StatusConfig[] = [
 /**
  * Status configuration for work order bars (timeline visualization)
  */
-export const STATUS_BAR_CONFIG: StatusConfig[] = [
+export const WORK_ORDER_BAR_CONFIG: StatusConfig[] = [
   { value: 'open', label: 'Open', textColor: 'var(--status-open-text)', bgColor: 'var(--status-open-bar-bg)', borderColor: 'var(--status-open-bar-border)' },
   { value: 'in-progress', label: 'In Progress', textColor: 'var(--status-in-progress-text)', bgColor: 'var(--status-in-progress-bar-bg)', borderColor: 'var(--status-in-progress-bar-border)' },
   { value: 'complete', label: 'Complete', textColor: 'var(--status-complete-text)', bgColor: 'var(--status-complete-bar-bg)', borderColor: 'var(--status-complete-bar-border)' },
