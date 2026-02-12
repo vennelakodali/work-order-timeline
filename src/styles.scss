@@ -16,19 +16,20 @@
   --bg-white: #FFFFFF;
   --bg-light: #FAFAFC;
   --bg-hover: #F5F5FF;
+  --bg-light-secondary: #f1f3f8bf;
 
   // Status colors
   --status-open-text: #00B0BF;
   --status-open-bg: #E4FDFF;
   --status-open-border: #C5C7FF;
-  --status-in-progress-text: #5659FF;
-  --status-in-progress-bg: #EEEFFE;
+  --status-in-progress-text: #3E40DB;
+  --status-in-progress-bg: #D6D8FF;
   --status-in-progress-border: #C5C7FF;
-  --status-complete-text: #0B8A3E;
-  --status-complete-bg: #E6F9ED;
+  --status-complete-text: #08A268;
+  --status-complete-bg: #E1FFCC;
   --status-complete-border: #A3E4B5;
-  --status-blocked-text: #E53935;
-  --status-blocked-bg: #FFEBEE;
+  --status-blocked-text: #B13600;
+  --status-blocked-bg: #FCEEB5;
   --status-blocked-border: #FFCDD2;
 
   // Shadows
@@ -59,7 +60,8 @@
   padding: 0;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   font-family: var(--font-family);
   font-size: 14px;
@@ -122,6 +124,8 @@ ngb-datepicker {
   font-family: var(--font-family);
   border-radius: 8px;
   box-shadow: var(--shadow-md);
+  top: 100% !important;
+
 
   .ngb-dp-weekday {
     color: var(--text-secondary);
@@ -149,6 +153,12 @@ ngb-datepicker {
 
   .ngb-dp-navigation-chevron {
     color: var(--text-primary);
+  }
+
+  ngb-datepicker-navigation-select+.dropdown-menu,
+  .ngb-dp-popup {
+    transform: none !important;
+    will-change: auto !important;
   }
 }
 

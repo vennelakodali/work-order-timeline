@@ -107,6 +107,9 @@
 // ---- Date Input Wrapper ----
 .date-input-wrapper {
   padding: 1px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 
   .form-input {
     cursor: pointer;
@@ -123,9 +126,10 @@
 }
 
 // ---- ng-select overrides for panel context ----
-// :host ::ng-deep .ng-select {
-//   .ng-select-container {
-//     height: 40px !important;
-//     border-radius: 5px !important;
-//   }
-// }
+:host ::ng-deep .ng-select {
+  .ng-select-container {
+    height: 40px !important;
+    border-radius: 5px !important;
+  }
+}
+
