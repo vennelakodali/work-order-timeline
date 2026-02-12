@@ -16,8 +16,8 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 0 10px;
-  border-radius: 6px;
+  padding: 10px 8px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
@@ -25,23 +25,23 @@
 
   // ---- Status-colored backgrounds ----
   &.status-open {
-    background: var(--status-open-bg);
-    border-color: var(--status-open-border);
+    background: var(--status-open-bar-bg);
+    border-color: var(--status-open-bar-border);
   }
 
   &.status-in-progress {
-    background: var(--status-in-progress-bg);
-    border-color: var(--status-in-progress-border);
+    background: var(--status-in-progress-bar-bg);
+    border-color: var(--status-in-progress-bar-border);
   }
 
   &.status-complete {
-    background: var(--status-complete-bg);
-    border-color: var(--status-complete-border);
+    background: var(--status-complete-bar-bg);
+    border-color: var(--status-complete-bar-border);
   }
 
   &.status-blocked {
-    background: var(--status-blocked-bg);
-    border-color: var(--status-blocked-border);
+    background: var(--status-blocked-bar-bg);
+    border-color: var(--status-blocked-bar-border);
   }
 
   &:hover,
@@ -52,8 +52,8 @@
 
   .bar-name {
     font-family: var(--font-family);
-    font-size: 12px;
-    font-weight: 500;
+    font-size: 14px;
+    font-weight: 400;
     color: var(--text-primary);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -63,9 +63,6 @@
 
   // ---- Three-dot actions button ----
   .actions-btn {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
     justify-content: center;
     width: 22px;
     height: 22px;
@@ -82,6 +79,13 @@
       background: rgba(86, 89, 255, 0.1);
       color: var(--primary);
     }
+  }
+
+  ::ng-deep .dropdown-panel.align-right {
+    left: 0;
+    top: calc(100% + 8px);
+    box-shadow: var(--shadow-dropdown-elevated);
+    border-radius: 5px;
   }
 
   // Show actions button on bar hover
@@ -103,22 +107,14 @@
     text-align: left;
     background: none;
     font-family: var(--font-family);
-    font-size: 13px;
+    font-size: 14px;
     padding: 8px 14px;
-    color: var(--text-primary);
+    color: var(--text-primary-2);
     cursor: pointer;
-    transition: background 0.15s;
-
-    &:hover {
-      background: var(--bg-hover);
-    }
+    font-weight: 400;
 
     &.delete {
-      color: #E53935;
-
-      &:hover {
-        background: #FFEBEE;
-      }
+      color: var(--primary-shade);
     }
   }
 
@@ -127,12 +123,11 @@
     position: absolute;
     top: calc(100% + 8px);
     left: 12px;
-    background: var(--text-primary);
-    color: #fff;
-    font-family: var(--font-family);
-    font-size: 11px;
+    background: var(--bg-light-secondary);
+    color: var(--text-secondary);
+    font-size: 13px;
     padding: 8px 12px;
-    border-radius: 6px;
+    border-radius: 5px;
     box-shadow: var(--shadow-md);
     z-index: 60;
     display: flex;
@@ -140,17 +135,6 @@
     gap: 2px;
     white-space: nowrap;
     pointer-events: none;
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: -4px;
-      left: 16px;
-      width: 8px;
-      height: 8px;
-      background: var(--text-primary);
-      transform: rotate(45deg);
-    }
 
     strong {
       font-weight: 600;

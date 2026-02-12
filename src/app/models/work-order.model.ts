@@ -43,5 +43,5 @@ export interface StatusConfig {
   label: string;
   textColor: string;
   bgColor: string;
-  borderColor?: string;
+  borderColor: string;
 }

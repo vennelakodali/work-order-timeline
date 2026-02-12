@@ -6,11 +6,10 @@
   [style.color]="config.textColor"
   [style.background]="config.bgColor"
   [style.borderColor]="config.borderColor"
-  (mouseenter)="isHovered = true"
   (mouseleave)="onMouseLeave()"
 >
   <!-- Work order name -->
-  <span class="bar-name" [title]="order.data.name">{{ order.data.name }}</span>
+  <span class="bar-name" [title]="order.data.name" [ngbTooltip]="barTooltip" container="body">{{ order.data.name }}</span>
 
   <!-- Status pill -->
   <app-pill
@@ -23,11 +22,7 @@
   <!-- Three-dot actions menu (always rendered, visible on hover) -->
   <app-dropdown align="right" #actionsDropdown>
     <button trigger class="actions-btn" title="Actions">
-      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-        <circle cx="3" cy="8" r="1.5"/>
-        <circle cx="8" cy="8" r="1.5"/>
-        <circle cx="13" cy="8" r="1.5"/>
-      </svg>
+      <img src="assets/icons/hover.svg" alt="Actions" class="actions-icon" />
     </button>
     <div panel>
       <ul class="action-items-list">
@@ -37,10 +32,11 @@
     </div>
   </app-dropdown>
 
-  <!-- Tooltip on hover -->
-  <div class="bar-tooltip" *ngIf="isHovered && !actionsDropdown?.isOpen">
-    <strong>{{ order.data.name }}</strong>
-    <span>{{ order.data.status }}</span>
-    <span>{{ order.data.startDate }} &mdash; {{ order.data.endDate }}</span>
-  </div>
+  <ng-template #barTooltip>
+    <div class="bar-tooltip" *ngIf="!actionsDropdown?.isOpen">
+      <div><strong>{{ order.data.name }}</strong></div>
+      <div>{{ order.data.status }}</div>
+      <div>{{ order.data.startDate }} &mdash; {{ order.data.endDate }}</div>
+    </div>
+  </ng-template>
 </div>

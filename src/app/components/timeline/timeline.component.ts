@@ -47,13 +47,13 @@ export class TimelineComponent implements OnInit, OnDestroy {
   editingOrder: WorkOrderDocument | null = null;
 
   hoveredRowId: string | null = null;
-  hoveredRowHasNoOrders = false;
   hoverButtonPosition: { x: number; y: number } | null = null;
   todayPosition = 0;
-  clickToAddCoords: {
-    [key: string]: string
-  } | null = null;
+
   readonly workCenterColumnWidth = 380; // Matches --panel-width in styles.scss
+  private readonly HOVER_BUTTON_WIDTH = 113;
+  private readonly HOVER_BUTTON_HEIGHT = 38;
+  private readonly HOVER_BUTTON_MARGIN = 20;
 
   private subscriptions = new Subscription();
   private today = new Date();
@@ -88,7 +88,6 @@ export class TimelineComponent implements OnInit, OnDestroy {
   get columns() { return this.columnConfig.columns; }
   get columnWidth() { return this.columnConfig.columnWidth; }
   get totalTimelineWidth(): number { return this.columns.length * this.columnWidth; }
-  get totalTableWidth(): number { return this.workCenterColumnWidth + this.totalTimelineWidth; }
 
   regenerateColumns(): void {
     this.columnConfig = generateTimelineColumns(this.timescale);
@@ -122,7 +121,11 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
   /** Check if a column contains the current period (today) */
   isCurrentPeriod(col: TimelineColumn): boolean {
-    return this.today >= col.startDate && this.today < col.endDate;
+    return TimelineComponent.checkIfCurrentPeriod(col, this.today);
+  }
+
+  private static checkIfCurrentPeriod(col: TimelineColumn, today: Date): boolean {
+    return today >= col.startDate && today < col.endDate;
   }
 
   // ---------------------------------------------------------------------------
@@ -140,8 +143,12 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     const xInRow = event.clientX - rect.left + scrollEl.scrollLeft;
+
+    // Convert from row coordinates to timeline coordinates
+    const xInTimeline = xInRow - this.workCenterColumnWidth;
+
     const clickDate = positionToDate(
-      xInRow,
+      xInTimeline,
       this.columnConfig.timelineStartDate,
       this.columnConfig.timelineEndDate,
       this.totalTimelineWidth
@@ -170,98 +177,131 @@ export class TimelineComponent implements OnInit, OnDestroy {
     if (event && centerId) {
       this.updateHoverButton(event, centerId);
     } else {
-      this.hoveredRowHasNoOrders = false;
-      this.hoverButtonPosition = null;
-      this.hoverButtonTooltip?.close();
+      this.clearHoverButton();
     }
   }
 
   onRowMouseMove(event: MouseEvent, centerId: string): void {
-    // Check if cursor is over the work center column
-    const target = event.target as HTMLElement;
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    const xInRow = event.clientX - rect.left;
-    const isOverWorkCenterColumn = target.closest('.work-center-cell') !== null || xInRow < this.workCenterColumnWidth;
-
-    if (isOverWorkCenterColumn) {
-      // Hide button if over work center column
+    if (this.isOverWorkCenterColumn(event)) {
       if (this.hoverButtonPosition) {
-        this.hoverButtonPosition = null;
-        this.hoveredRowHasNoOrders = false;
-        this.hoverButtonTooltip?.close();
+        this.clearHoverButton();
       }
       return;
     }
 
     if (this.hoveredRowId === centerId && this.hoverButtonPosition) {
-      // Check if cursor is still near the button area
-      const buttonWidth = 100; // Approximate button width
-      const buttonHeight = 32; // Approximate button height
-      const margin = 20; // Extra margin for tolerance
+      // Clear button if cursor moved outside bounds OR if now over a work order bar
+      if (this.isCursorOutsideButtonBounds(event) || this.isOverOrderBar(event)) {
+        this.clearHoverButton();
+      } else {
+        // Also check if still over empty space using coordinates
+        const scrollEl = this.timelineScroll?.nativeElement;
+        if (scrollEl) {
+          const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+          const xInRow = event.clientX - rect.left;
+          const xInRowWithScroll = xInRow + scrollEl.scrollLeft;
+          const xInTimeline = xInRowWithScroll - this.workCenterColumnWidth;
 
-      const distanceX = Math.abs(event.clientX - this.hoverButtonPosition.x);
-      const distanceY = Math.abs(event.clientY - this.hoverButtonPosition.y);
-
-      // Hide button if cursor moves outside the button bounds
-      if (distanceX > (buttonWidth / 2 + margin) || distanceY > (buttonHeight / 2 + margin)) {
-        this.hoverButtonPosition = null;
-        this.hoveredRowHasNoOrders = false;
-        this.hoverButtonTooltip?.close();
+          if (!this.isOverEmptySpace(centerId, xInTimeline)) {
+            this.clearHoverButton();
+          }
+        }
       }
     } else if (this.hoveredRowId === centerId && !this.hoverButtonPosition) {
-      // Show button if we don't have one yet
       this.updateHoverButton(event, centerId);
     }
   }
 
   private updateHoverButton(event: MouseEvent, centerId: string): void {
-    // Check if cursor is over the work center column (first column)
-    const target = event.target as HTMLElement;
-    const isOverWorkCenterColumn = target.closest('.work-center-cell') !== null;
-
-    if (isOverWorkCenterColumn) {
-      return; // Don't show button over work center column
+    if (this.isOverWorkCenterColumn(event) || this.isOverOrderBar(event)) {
+      return;
     }
 
-    // Calculate the mouse position relative to the timeline
     const scrollEl = this.timelineScroll?.nativeElement;
     if (!scrollEl) return;
 
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     const xInRow = event.clientX - rect.left;
-
-    // Also check X position - if it's within the work center column width, don't show button
-    if (xInRow < this.workCenterColumnWidth) {
-      return; // Don't show button over work center column area
-    }
-
-    // Check if cursor is over an existing work order bar
-    const isOverOrderBar = target.closest('app-work-order-bar') !== null;
-
-    if (isOverOrderBar) {
-      return; // Don't show button over orders
-    }
-
     const xInRowWithScroll = xInRow + scrollEl.scrollLeft;
 
-    // Check if this position overlaps with any order bar for this work center
-    const orders = this.getOrdersForCenter(centerId);
-    const isOverEmptySpace = !orders.some(order => {
-      const barStyle = this.calcBarStyle(order);
-      return xInRowWithScroll >= barStyle.left && xInRowWithScroll <= (barStyle.left + barStyle.width);
-    });
+    // Convert from row coordinates to timeline coordinates
+    // Row coordinates include the work center column, but bar positions don't
+    const xInTimeline = xInRowWithScroll - this.workCenterColumnWidth;
 
-    if (isOverEmptySpace) {
-      // Show button at cursor X position, but vertically centered on the row
-      const rowRect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-      this.hoveredRowHasNoOrders = true;
-      this.hoverButtonPosition = {
-        x: event.clientX,
-        y: rowRect.top + (rowRect.height / 2) // Center of the row
-      };
-      // Open tooltip when button appears
-      setTimeout(() => this.hoverButtonTooltip?.open(), 0);
+    if (this.isOverEmptySpace(centerId, xInTimeline)) {
+      this.showHoverButton(event, rect);
     }
+  }
+
+  private isOverWorkCenterColumn(event: MouseEvent): boolean {
+    return TimelineComponent.checkIfOverWorkCenterColumn(event, this.workCenterColumnWidth);
+  }
+
+  private static checkIfOverWorkCenterColumn(event: MouseEvent, workCenterWidth: number): boolean {
+    const target = event.target as HTMLElement;
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const xInRow = event.clientX - rect.left;
+    return target.closest('.work-center-cell') !== null || xInRow < workCenterWidth;
+  }
+
+  private isOverOrderBar(event: MouseEvent): boolean {
+    return TimelineComponent.checkIfOverOrderBar(event);
+  }
+
+  private static checkIfOverOrderBar(event: MouseEvent): boolean {
+    const target = event.target as HTMLElement;
+    return target.closest('app-work-order-bar') !== null;
+  }
+
+  private isOverEmptySpace(centerId: string, xPosition: number): boolean {
+    const orders = this.getOrdersForCenter(centerId);
+    const bars = orders.map(order => this.calcBarStyle(order));
+    return TimelineComponent.checkIfOverEmptySpace(xPosition, bars);
+  }
+
+  private static checkIfOverEmptySpace(
+    xPosition: number,
+    bars: Array<{ left: number; width: number }>
+  ): boolean {
+    return !bars.some(bar => xPosition >= bar.left && xPosition <= (bar.left + bar.width));
+  }
+
+  private isCursorOutsideButtonBounds(event: MouseEvent): boolean {
+    if (!this.hoverButtonPosition) return true;
+
+    return TimelineComponent.checkIfCursorOutsideButtonBounds(
+      event,
+      this.hoverButtonPosition,
+      this.HOVER_BUTTON_WIDTH,
+      this.HOVER_BUTTON_HEIGHT,
+      this.HOVER_BUTTON_MARGIN
+    );
+  }
+
+  private static checkIfCursorOutsideButtonBounds(
+    event: MouseEvent,
+    buttonPosition: { x: number; y: number },
+    buttonWidth: number,
+    buttonHeight: number,
+    margin: number
+  ): boolean {
+    const distanceX = Math.abs(event.clientX - buttonPosition.x);
+    const distanceY = Math.abs(event.clientY - buttonPosition.y);
+
+    return distanceX > (buttonWidth / 2 + margin) || distanceY > (buttonHeight / 2 + margin);
+  }
+
+  private showHoverButton(event: MouseEvent, rowRect: DOMRect): void {
+    this.hoverButtonPosition = {
+      x: event.clientX,
+      y: rowRect.top + (rowRect.height / 2)
+    };
+    setTimeout(() => this.hoverButtonTooltip?.open(), 0);
+  }
+
+  private clearHoverButton(): void {
+    this.hoverButtonPosition = null;
+    this.hoverButtonTooltip?.close();
   }
 
 

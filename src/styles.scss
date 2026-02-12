@@ -10,49 +10,60 @@
   --text-primary: #030929;
   --text-secondary: #687196;
   --text-disabled: #D8DCEB;
-  --text-primary-2: #2F3059 // Borders & Backgrounds
-    --stroke: #F0F1F5;
+  --text-primary-2: #2F3059;
+  --text-tooltip: #F9FAFF;
+  
+  // Borders & Backgrounds
+  --stroke: #F0F1F5;
   --stroke-dark: #E2E4EC;
   --bg-white: #FFFFFF;
   --bg-light: #FAFAFC;
   --bg-hover: #F5F5FF;
+  --bg-hover-dark: #E6E6FA;
+  --bg-hover-light: #FAFBFD;
   --bg-light-secondary: #f1f3f8bf;
+  --bg-hover-button: #6570FF1A;
+  --bg-hover-button-border: #C3C7FF;
 
   // Status colors
   --status-open-text: #00B0BF;
   --status-open-pill-bg: #E4FDFF;
   --status-open-pill-border: #C5C7FF;
-  --status-open-badge-bg: #E4FDFF;
-  --status-open-badge-border: #C5C7FF;
+  --status-open-bar-bg: #E4FDFF;
+  --status-open-bar-border: #C5C7FF;
 
   --status-in-progress-text: #3E40DB;
   --status-in-progress-pill-bg: #D6D8FF;
   --status-in-progress-pill-border: #C5C7FF;
-  --status-in-progress-badge-bg: #edeeff;
-  --status-in-progress-badge-border: #DEE0FF;
+  --status-in-progress-bar-bg: #edeeff;
+  --status-in-progress-bar-border: #DEE0FF;
   
   --status-complete-text: #08A268;
   --status-complete-pill-bg: #E1FFCC;
   --status-complete-pill-border: #A3E4B5;
-  --status-complete-badge-bg: #F8FFF3;
-  --status-complete-badge-border: #D1FAB3;
-
-
+  --status-complete-bar-bg: #F8FFF3;
+  --status-complete-bar-border: #D1FAB3;
   
   --status-blocked-text: #B13600;
   --status-blocked-pill-bg: #FCEEB5;
   --status-blocked-pill-border: #FFCDD2;
-  --status-blocked-badge-bg: #FFFCF1;
-  --status-blocked-badge-border: #FFF5CF;
+  --status-blocked-bar-bg: #FFFCF1;
+  --status-blocked-bar-border: #FFF5CF;
 
+  --current-period-pill-bg: #D4D7FF;
 
   // Shadows
   --shadow-sm: 0px 1px 2px rgba(0, 0, 0, 0.06);
   --shadow-md: 0px 4px 12px rgba(0, 0, 0, 0.1);
   --shadow-panel: -4px 0px 24px rgba(0, 0, 0, 0.08);
   --shadow-btn: 0px 1px 3px rgba(0, 0, 0, 0.08), 0px 1px 2px rgba(0, 0, 0, 0.06);
-  --shadow-cancel-btn: 0 0 0 1px rgba(255, 255, 255, 1), 0 1px 3px 0 rgba(200, 207, 233, 1);
+  --shadow-btn-cancel: 0 0 0 1px rgba(255, 255, 255, 1), 0 1px 3px 0 rgba(200, 207, 233, 1);
+  --shadow-btn-primary: 0 0 1px rgba(86, 89, 255, 1), 0 1px 3px 0 rgba(200, 207, 233, 1);
   --shadow-dropdown: 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --shadow-dropdown-elevated: 0 0 0 1px rgba(104, 113, 150, 0.1), 0 2.5px 3px -1.5px rgba(200, 207, 233, 1), 0 4.5px 5px -1px rgba(216, 220, 235, 1);
+  --shadow-input: 0 0 0 1px rgba(216, 220, 235, 1), 0 1.5px 3px -1.5px rgba(200, 207, 233, 1), 0 1px 0.5px -1px rgba(216, 220, 235, 1);
+  --shadow-hover-button: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --shadow-tooltip: 0 2px 4px -2px rgba(200, 207, 233, 1), 0 0 16px -8px rgba(230, 235, 240, 1);
   --separator-border: #E6EBF0;
 
   // Font
@@ -225,7 +236,7 @@ ngb-datepicker {
     font-size: 14px;
     color: var(--text-primary);
     background: var(--bg-white);
-    box-shadow: 0 0 0 1px rgba(216, 220, 235, 1), 0 1.5px 3px -1.5px rgba(200, 207, 233, 1), 0 1px 0.5px -1px rgba(216, 220, 235, 1);
+    box-shadow: var(--shadow-input);
     border: none;
 
 

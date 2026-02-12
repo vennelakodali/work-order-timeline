@@ -4,17 +4,11 @@ import { ReactiveFormsModule, FormGroup, FormControl, Validators, AbstractContro
 import { NgSelectModule } from '@ng-select/ng-select';
 import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { WorkOrderService } from '../../services/work-order.service';
-import { WorkOrderDocument, WorkOrderStatus, PanelMode, StatusConfig } from '../../models/work-order.model';
+import { WorkOrderDocument, WorkOrderStatus, PanelMode } from '../../models/work-order.model';
 import { PillComponent } from '../../ui/pill/pill.component';
 import { isoToNgbDate, ngbDateToIso, ngbDateToDate, formatNgbDate } from '../../utils/date-conversions';
 import { trigger, transition, style, animate } from '@angular/animations';
-
-const STATUS_PILL_CONFIG: StatusConfig[] = [
-  { value: 'open', label: 'Open', textColor: 'var(--status-open-text)', bgColor: 'var(--status-open-pill-bg)', borderColor: 'var(--status-open-pill-border)' },
-  { value: 'in-progress', label: 'In Progress', textColor: 'var(--status-in-progress-text)', bgColor: 'var(--status-in-progress-pill-bg)', borderColor: 'var(--status-in-progress-pill-border)' },
-  { value: 'complete', label: 'Complete', textColor: 'var(--status-complete-text)', bgColor: 'var(--status-complete-pill-bg)', borderColor: 'var(--status-complete-pill-border)' },
-  { value: 'blocked', label: 'Blocked', textColor: 'var(--status-blocked-text)', bgColor: 'var(--status-blocked-pill-bg)', borderColor: 'var(--status-blocked-pill-border)' }
-];
+import { STATUS_PILL_CONFIG } from '../../constants/status-config';
 
 /**
  * Slide Panel Component

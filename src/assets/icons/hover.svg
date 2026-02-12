@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="22" viewBox="0 0 24 22">
+	<!-- Transparent background layer adjusted to 24x22 -->
+	<path fill="transparent" d="M0 0L24 0L24 22L0 22L0 0Z"/>
+	
+	<!-- Background shape adjusted: height reduced from 24 to 22 -->
+	<path fill="#F1F3F8" d="M5 0L19 0C21.7614 0 24 2.2386 24 5L24 17C24 19.7614 21.7614 22 19 22L5 22C2.2386 22 0 19.7614 0 17L0 5C0 2.2386 2.2386 0 5 0Z" fill-rule="evenodd"/>
+	
+	<!-- First Dot -->
+	<path fill="#687196" transform="translate(6 11)" d="M1.5 0.75Q1.5 1.5 0.75 1.5Q0 1.5 0 0.75Q0 0 0.75 0Q1.5 0 1.5 0.75Z"/>
+	<path fill="none" stroke="#687196" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" transform="translate(6 11)" d="M1.5 0.75Q1.5 1.5 0.75 1.5Q0 1.5 0 0.75Q0 0 0.75 0Q1.5 0 1.5 0.75Z"/>
+	
+	<!-- Second Dot -->
+	<path fill="#687196" transform="translate(11.25 11)" d="M1.5 0.75Q1.5 1.5 0.75 1.5Q0 1.5 0 0.75Q0 0 0.75 0Q1.5 0 1.5 0.75Z"/>
+	<path fill="none" stroke="#687196" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" transform="translate(11.25 11)" d="M1.5 0.75Q1.5 1.5 0.75 1.5Q0 1.5 0 0.75Q0 0 0.75 0Q1.5 0 1.5 0.75Z"/>
+	
+	<!-- Third Dot -->
+	<path fill="#687196" transform="translate(16.5 11)" d="M1.5 0.75Q1.5 1.5 0.75 1.5Q0 1.5 0 0.75Q0 0 0.75 0Q1.5 0 1.5 0.75Z"/>
+	<path fill="none" stroke="#687196" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" transform="translate(16.5 11)" d="M1.5 0.75Q1.5 1.5 0.75 1.5Q0 1.5 0 0.75Q0 0 0.75 0Q1.5 0 1.5 0.75Z"/>
+</svg>

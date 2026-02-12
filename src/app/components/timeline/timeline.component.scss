@@ -1,7 +1,3 @@
-// =============================================================================
-// Timeline Component Styles
-// =============================================================================
-
 :host {
   display: flex;
   flex-direction: column;
@@ -10,7 +6,6 @@
   gap: 24px;
 }
 
-// ---- Main Timeline Container ----
 .timeline-container {
   display: flex;
   flex: 1;
@@ -19,7 +14,6 @@
   background: var(--bg-white);
 }
 
-// ---- Scrollable Timeline Wrapper ----
 .timeline-scroll-wrapper {
   flex: 1;
   overflow-x: auto;
@@ -27,7 +21,6 @@
   position: relative;
 }
 
-// ---- Timeline Table ----
 .timeline-table {
   border-collapse: separate;
   border-spacing: 0;
@@ -66,7 +59,6 @@
   }
 }
 
-// ---- Work Center Header (First Column Header) ----
 .work-center-header {
   height: var(--header-height);
   width: var(--panel-width);
@@ -88,7 +80,6 @@
   z-index: 11;
 }
 
-// ---- Column Headers ----
 .column-header {
   height: var(--header-height);
   min-height: var(--header-height);
@@ -110,7 +101,6 @@
   }
 }
 
-// ---- Work Center Cell (First Column) ----
 .work-center-cell {
   height: var(--row-height);
   min-height: var(--row-height);
@@ -142,7 +132,6 @@
   display: block;
 }
 
-// ---- Timeline Rows ----
 .timeline-row {
   height: var(--row-height);
   min-height: var(--row-height);
@@ -152,7 +141,6 @@
   position: relative;
 }
 
-// ---- Column Cells ----
 .column-cell {
   height: var(--row-height);
   min-height: var(--row-height);
@@ -167,7 +155,6 @@
   }
 }
 
-// ---- Filler Row ----
 .filler-row {
   height: 100%;
   cursor: default;
@@ -180,7 +167,6 @@
   }
 }
 
-// ---- Current period pill ----
 .current-period-pill {
   position: absolute;
   top: 0px;
@@ -190,24 +176,6 @@
   z-index: 3;
 }
 
-.click-to-add-button {
-  /* Remove it from the document flow so it doesn't push cells */
-  position: absolute !important; 
-  z-index: 9999;
-  
-  /* Reset any Bootstrap button margins that might shift it */
-  margin: 0 !important;
-  padding: 2px 8px;
-  
-  /* Center it on the cursor point */
-  transform: translate(-50%, -50%);
-  
-  /* Ensure it doesn't wrap or get squished */
-  white-space: nowrap;
-  pointer-events: auto;
-}
-
-// ---- Hover Button for Empty Rows ----
 .hover-add-button {
   position: fixed;
   z-index: 5;
@@ -221,17 +189,12 @@
   border-radius: 8px;
   cursor: pointer;
   pointer-events: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-hover-button);
   transition: opacity 0.1s ease;
   font-size: 14px;
   font-weight: 400;
-
-  &:hover {
-    background: var(--primary-dark);
-  }
 }
 
-// ---- Today Indicator ----
 .today-indicator {
   position: absolute;
   top: 0;
@@ -251,7 +214,6 @@
   }
 }
 
-// ---- Panel Backdrop ----
 .panel-backdrop {
   position: fixed;
   top: 0;
@@ -266,13 +228,10 @@
     background: var(--text-secondary);
     color: var(--text-tooltip);
     font-size: 14px;
-    font-weight: 400px;
+    font-weight: 400;
     padding: 4px 8px;
     border-radius: 8px;
-    box-shadow: 0 2px 4px -2px rgba(200, 207, 233, 1) , 0 0 16px -8px rgba(230, 235, 240, 1);
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+    box-shadow: var(--shadow-tooltip);
     white-space: nowrap;
     border: none;
   }
