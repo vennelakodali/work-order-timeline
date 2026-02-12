@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
+import type { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { WorkOrderService } from '../../services/work-order.service';
 import { WorkCenterDocument } from '../../models/work-center.model';
 import { WorkOrderDocument, PanelMode, TimescaleLevels } from '../../models/work-order.model';
@@ -11,11 +12,12 @@ import { PillComponent } from '../../ui/pill/pill.component';
 import { generateTimelineColumns, TimelineColumn, TimelineColumnConfig } from '../../utils/timeline-columns';
 import { dateToPosition, positionToDate, getBarStyle } from '../../utils/timeline-positioning';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-timeline',
   standalone: true,
-  imports: [CommonModule, WorkOrderBarComponent, SlidePanelComponent, TimelineHeaderComponent, PillComponent],
+  imports: [CommonModule, WorkOrderBarComponent, SlidePanelComponent, TimelineHeaderComponent, PillComponent, NgbTooltipModule],
   templateUrl: './timeline.component.html',
   styleUrls: ['./timeline.component.scss'],
   changeDetection: ChangeDetectionStrategy.Default,
@@ -30,6 +32,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 })
 export class TimelineComponent implements OnInit, OnDestroy {
   @ViewChild('timelineScroll', { static: false }) timelineScroll!: ElementRef<HTMLDivElement>;
+  @ViewChild('hoverButtonTooltip') hoverButtonTooltip!: NgbTooltip;
 
   workCenters: WorkCenterDocument[] = [];
   workOrders: WorkOrderDocument[] = [];
@@ -44,13 +47,18 @@ export class TimelineComponent implements OnInit, OnDestroy {
   editingOrder: WorkOrderDocument | null = null;
 
   hoveredRowId: string | null = null;
+  hoveredRowHasNoOrders = false;
+  hoverButtonPosition: { x: number; y: number } | null = null;
   todayPosition = 0;
+  clickToAddCoords: {
+    [key: string]: string
+  } | null = null;
   readonly workCenterColumnWidth = 380; // Matches --panel-width in styles.scss
 
   private subscriptions = new Subscription();
   private today = new Date();
 
-  constructor(private workOrderService: WorkOrderService) {}
+  constructor(private workOrderService: WorkOrderService) { }
 
   ngOnInit(): void {
     this.subscriptions.add(
@@ -156,18 +164,75 @@ export class TimelineComponent implements OnInit, OnDestroy {
     scrollEl.scrollLeft = this.todayPosition - viewportWidth / 2 - this.workCenterColumnWidth / 2;
   }
 
-  onRowHover(centerId: string | null): void {
+  onRowHover(event: MouseEvent | null, centerId: string | null): void {
     this.hoveredRowId = centerId;
-  }
 
-  get todayLabel(): string {
-    switch (this.timescale) {
-      case 'Hour': return 'Now';
-      case 'Week': return 'This week';
-      case 'Month': return 'This month';
-      default: return 'Today';
+    if (event && centerId) {
+      this.updateHoverButton(event, centerId);
+    } else {
+      this.hoveredRowHasNoOrders = false;
+      this.hoverButtonPosition = null;
+      this.hoverButtonTooltip?.close();
     }
   }
+
+  onRowMouseMove(event: MouseEvent, centerId: string): void {
+    if (this.hoveredRowId === centerId && this.hoverButtonPosition) {
+      // Check if cursor is still near the button area
+      const buttonWidth = 100; // Approximate button width
+      const buttonHeight = 32; // Approximate button height
+      const margin = 20; // Extra margin for tolerance
+
+      const distanceX = Math.abs(event.clientX - this.hoverButtonPosition.x);
+      const distanceY = Math.abs(event.clientY - this.hoverButtonPosition.y);
+
+      // Hide button if cursor moves outside the button bounds
+      if (distanceX > (buttonWidth / 2 + margin) || distanceY > (buttonHeight / 2 + margin)) {
+        this.hoverButtonPosition = null;
+        this.hoveredRowHasNoOrders = false;
+      }
+    } else if (this.hoveredRowId === centerId && !this.hoverButtonPosition) {
+      // Show button if we don't have one yet
+      this.updateHoverButton(event, centerId);
+    }
+  }
+
+  private updateHoverButton(event: MouseEvent, centerId: string): void {
+    // Check if cursor is over an existing work order bar
+    const target = event.target as HTMLElement;
+    const isOverOrderBar = target.closest('app-work-order-bar') !== null;
+
+    if (isOverOrderBar) {
+      return; // Don't show button over orders
+    }
+
+    // Calculate the mouse position relative to the timeline
+    const scrollEl = this.timelineScroll?.nativeElement;
+    if (!scrollEl) return;
+
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const xInRow = event.clientX - rect.left + scrollEl.scrollLeft;
+
+    // Check if this position overlaps with any order bar for this work center
+    const orders = this.getOrdersForCenter(centerId);
+    const isOverEmptySpace = !orders.some(order => {
+      const barStyle = this.calcBarStyle(order);
+      return xInRow >= barStyle.left && xInRow <= (barStyle.left + barStyle.width);
+    });
+
+    if (isOverEmptySpace) {
+      // Show button at cursor X position, but vertically centered on the row
+      const rowRect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+      this.hoveredRowHasNoOrders = true;
+      this.hoverButtonPosition = {
+        x: event.clientX,
+        y: rowRect.top + (rowRect.height / 2) // Center of the row
+      };
+      // Open tooltip when button appears
+      setTimeout(() => this.hoverButtonTooltip?.open(), 0);
+    }
+  }
+
 
   // ---------------------------------------------------------------------------
   // Panel Operations

@@ -51,7 +51,7 @@
     }
 
     th {
-      border: 1px solid var(--separator-border);
+      border-top: 1px solid var(--separator-border);
     }
   }
 
@@ -61,7 +61,7 @@
 
   tr {
     &.hovered {
-      background: var(--bg-hover);
+      background: var(--bg-hover-dark);
     }
   }
 }
@@ -128,7 +128,7 @@
   background-clip: padding-box; 
 
   .timeline-row.hovered & {
-    background: var(--bg-hover);
+    background: var(--bg-hover-light);
   }
 }
 
@@ -150,10 +150,6 @@
   cursor: pointer;
   transition: background 0.15s;
   position: relative;
-
-  &.hovered {
-    background: var(--bg-hover);
-  }
 }
 
 // ---- Column Cells ----
@@ -184,24 +180,55 @@
   }
 }
 
-// ---- "Click to add" hint ----
-.click-to-add {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  z-index: 2;
-}
-
 // ---- Current period pill ----
 .current-period-pill {
   position: absolute;
-  top: 8px;
+  top: 0px;
   left: 50%;
   transform: translateX(-50%);
   pointer-events: none;
-  z-index: 2;
+  z-index: 3;
+}
+
+.click-to-add-button {
+  /* Remove it from the document flow so it doesn't push cells */
+  position: absolute !important; 
+  z-index: 9999;
+  
+  /* Reset any Bootstrap button margins that might shift it */
+  margin: 0 !important;
+  padding: 2px 8px;
+  
+  /* Center it on the cursor point */
+  transform: translate(-50%, -50%);
+  
+  /* Ensure it doesn't wrap or get squished */
+  white-space: nowrap;
+  pointer-events: auto;
+}
+
+// ---- Hover Button for Empty Rows ----
+.hover-add-button {
+  position: fixed;
+  z-index: 5;
+  transform: translate(-50%, -50%);
+  padding: 6px 12px;
+  height: 38px;
+  width: 113px;
+  background: var(--bg-hover-button);
+  color: transparent;
+  border: 1px solid var(--bg-hover-button-border);
+  border-radius: 8px;
+  cursor: pointer;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: opacity 0.1s ease;
+  font-size: 14px;
+  font-weight: 400;
+
+  &:hover {
+    background: var(--primary-dark);
+  }
 }
 
 // ---- Today Indicator ----
@@ -209,23 +236,9 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  z-index: 4;
+  z-index: 2;
   pointer-events: none;
   width: 2px;
-
-  .today-label {
-    position: absolute;
-    top: 14px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--primary-bg);
-    color: var(--primary);
-    font-size: 10px;
-    font-weight: 600;
-    padding: 2px 8px;
-    border-radius: 10px;
-    white-space: nowrap;
-  }
 
   .today-line {
     position: absolute;
@@ -247,4 +260,33 @@
   bottom: 0;
   background: rgba(0, 0, 0, 0.08);
   z-index: 999;
+}
+
+  .add-new-dates-tooltip {
+    background: var(--text-secondary);
+    color: var(--text-tooltip);
+    font-size: 14px;
+    font-weight: 400px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px -2px rgba(200, 207, 233, 1) , 0 0 16px -8px rgba(230, 235, 240, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    white-space: nowrap;
+    border: none;
+  }
+
+:host ::ng-deep .tooltip-arrow {
+  display: none !important;
+}
+
+:host ::ng-deep .tooltip-inner {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+:host ::ng-deep .tooltip {
+  border: none !important;
 }
