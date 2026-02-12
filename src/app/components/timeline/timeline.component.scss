@@ -60,15 +60,11 @@
 }
 
 .work-center-header {
-  height: var(--header-height);
   width: var(--panel-width);
-  min-height: var(--header-height);
-  max-height: var(--header-height);
   padding: 0 16px;
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   color: var(--text-secondary);
-  text-transform: uppercase;
   border-bottom: 1px solid var(--separator-border);
   border-right: 1px solid var(--separator-border);
   border-left: 1px solid var(--separator-border);
@@ -81,10 +77,7 @@
 }
 
 .column-header {
-  height: var(--header-height);
-  min-height: var(--header-height);
-  max-height: var(--header-height);
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--text-secondary);
   border-bottom: 1px solid var(--stroke);
@@ -123,7 +116,6 @@
 }
 
 .work-center-name {
-  font-size: 13px;
   font-weight: 500;
   color: var(--text-primary);
   white-space: nowrap;

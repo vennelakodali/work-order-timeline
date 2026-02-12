@@ -11,14 +11,14 @@
     <table class="timeline-table" [style.width.px]="totalTimelineWidth">
       <thead>
         <tr>
-          <th class="work-center-header">Work Center</th>
+          <th class="work-center-header"><span>Work Center</span></th>
           <th
             *ngFor="let col of columns; trackBy: trackByColumn"
             class="column-header"
             [class.current-period]="isCurrentPeriod(col)"
             [style.width.px]="columnWidth"
           >
-            {{ col.label }}
+            <span>{{ col.label }}</span>
           </th>
         </tr>
       </thead>
