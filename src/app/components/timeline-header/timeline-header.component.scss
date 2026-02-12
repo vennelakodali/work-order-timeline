@@ -2,23 +2,26 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 12px;
+  // margin-bottom: 12px;
   flex-shrink: 0;
+
+  .timescale-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
 
   .title {
     font-family: var(--font-family);
     font-size: 24px;
     font-weight: 500;
     color: var(--text-primary);
-    margin-bottom: 24px;
-    line-height: 1.4;
+    margin: 0;
   }
 
-  .timescale-container {
-    .dropdown-panel {
-      min-width: 180px !important;
-      aspect-ratio: 200 / 136;
-    }
+  ::ng-deep .dropdown-panel {
+    min-width: 180px;
+    box-shadow: 0 0 0 1px rgba(104, 113, 150, 0.1) , 0 2.5px 3px -1.5px rgba(200, 207, 233, 1) , 0 4.5px 5px -1px rgba(216, 220, 235, 1);
   }
 
   .timescale-label {
@@ -66,29 +69,39 @@
     }
   }
 
+  .timescale-options-list {
+    list-style: none;
+    margin: 0;
+    padding: 12px 0;
+  }
+
   .timescale-option {
     display: block;
     width: 100%;
     text-align: left;
     background: none;
-    border: none;
-    font-size: 13px;
-    padding: 8px 16px;
-    color: var(--text-primary);
+    font-size: 14px;
+    padding: 4px 12px ;
+    color: var(--text-primary-2);
     cursor: pointer;
-        white-space: pre;
+    white-space: pre;
+    transition: background 0.15s;
+
+    &.active {
+      color: var(--primary-shade);
+    }
   }
 
   .today-btn {
     margin-left: auto;
+    align-self: end;
     background: var(--bg-white);
-    border: 1px solid var(--stroke-dark);
-    border-radius: 6px;
-    font-family: var(--font-family);
-    font-size: 12px;
-    font-weight: 500;
+    border: none;
+    border-radius: 5px;
+    font-size: 13px;
+    font-weight: 400;
     color: var(--text-secondary);
-    padding: 6px 14px;
+    padding: 4px 12px;
     cursor: pointer;
     transition: all 0.15s;
     box-shadow: var(--shadow-btn);

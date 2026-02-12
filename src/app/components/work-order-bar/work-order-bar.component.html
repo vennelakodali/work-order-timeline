@@ -23,8 +23,10 @@
       </svg>
     </button>
     <div panel>
-      <button class="action-item" (click)="onEdit($event)">Edit</button>
-      <button class="action-item delete" (click)="onDelete($event)">Delete</button>
+      <ul class="action-items-list">
+        <li class="action-item" (click)="onEdit($event)">Edit</li>
+        <li class="action-item delete" (click)="onDelete($event)">Delete</li>
+      </ul>
     </div>
   </app-dropdown>
 

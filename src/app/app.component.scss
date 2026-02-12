@@ -5,11 +5,11 @@
   background: var(--bg-white);
   padding: 20px 24px;
   overflow: hidden;
+  gap: 20px;
 }
 
 .app-header {
   flex-shrink: 0;
-  margin-bottom: 6px;
 }
 
 .logo {

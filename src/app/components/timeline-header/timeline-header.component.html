@@ -10,12 +10,14 @@
      alt="Icon">
         </button>
         <div panel>
-          <button
-            *ngFor="let opt of timescaleOptions"
-            class="timescale-option"
-            [class.active]="opt.value === currentTimescale"
-            (click)="timescaleChange.emit(opt.value); timescaleDropdown.close()"
-          >{{ opt.label }}</button> 
+          <ul class="timescale-options-list">
+            <li
+              *ngFor="let opt of timescaleOptions"
+              class="timescale-option"
+              [class.active]="opt.value === currentTimescale"
+              (click)="timescaleChange.emit(opt.value); timescaleDropdown.close()"
+            >{{ opt.label }}</li>
+          </ul>
         </div>
   </app-dropdown>
   </div>

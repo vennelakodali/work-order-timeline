@@ -91,12 +91,17 @@
   }
 
   // ---- Dropdown action items ----
+  .action-items-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
   .action-item {
     display: block;
     width: 100%;
     text-align: left;
     background: none;
-    border: none;
     font-family: var(--font-family);
     font-size: 13px;
     padding: 8px 14px;
