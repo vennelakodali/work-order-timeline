@@ -23,7 +23,7 @@
   </div>
 
   <!-- Form -->
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="panel-form">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="work-order-form">
     <!-- Work Order Name -->
     <div class="form-group">
       <label class="form-label" for="wo-name">Work Order Name</label>
@@ -35,9 +35,6 @@
         placeholder="Enter work order name..."
         [class.error]="form.get('name')?.invalid && form.get('name')?.touched"
       />
-      <span class="field-error" *ngIf="form.get('name')?.invalid && form.get('name')?.touched">
-        Work order name is required.
-      </span>
     </div>
 
     <!-- Status (ng-select with pill-styled options) -->
@@ -56,7 +53,7 @@
           <app-status-pill [status]="item.value" />
         </ng-template>
         <ng-template ng-option-tmp let-item="item">
-          <app-status-pill [status]="item.value" />
+          <span [attr.data-status]="item.value" class="dropdown-menu-item">{{ item.label }}</span>
         </ng-template>
       </ng-select>
     </div>
@@ -82,12 +79,6 @@
           [container]="'body'"
           (dateSelect)="endDp.close()"
         />
-        <button type="button" class="date-toggle" (click)="endDp.toggle()">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-            <rect x="2" y="3" width="12" height="11" rx="2" />
-            <path d="M2 7h12M5 1v3M11 1v3" />
-          </svg>
-        </button>
       </div>
     </div>
 
@@ -111,17 +102,9 @@
           formControlName="startDate"
           [container]="'body'"
           (dateSelect)="startDp.close()"
+          navigation="select" 
         />
-        <button type="button" class="date-toggle" (click)="startDp.toggle()">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-            <rect x="2" y="3" width="12" height="11" rx="2" />
-            <path d="M2 7h12M5 1v3M11 1v3" />
-          </svg>
-        </button>
       </div>
-      <span class="field-error" *ngIf="form.hasError('dateRange') && form.touched">
-        End date must be after start date.
-      </span>
     </div>
   </form>
 </div>

@@ -10,9 +10,8 @@
   --text-primary: #030929;
   --text-secondary: #687196;
   --text-disabled: #D8DCEB;
-
-  // Borders & Backgrounds
-  --stroke: #F0F1F5;
+  --text-title: #2F3059 // Borders & Backgrounds
+    --stroke: #F0F1F5;
   --stroke-dark: #E2E4EC;
   --bg-white: #FFFFFF;
   --bg-light: #FAFAFC;
@@ -20,7 +19,7 @@
 
   // Status colors
   --status-open-text: #00B0BF;
-  --status-open-bg:  #E4FDFF;
+  --status-open-bg: #E4FDFF;
   --status-open-border: #C5C7FF;
   --status-in-progress-text: #5659FF;
   --status-in-progress-bg: #EEEFFE;
@@ -37,6 +36,9 @@
   --shadow-md: 0px 4px 12px rgba(0, 0, 0, 0.1);
   --shadow-panel: -4px 0px 24px rgba(0, 0, 0, 0.08);
   --shadow-btn: 0px 1px 3px rgba(0, 0, 0, 0.08), 0px 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-cancel-btn: 0 0 0 1px rgba(255, 255, 255, 1), 0 1px 3px 0 rgba(200, 207, 233, 1);
+  --shadow-dropdown: 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --separator-border: #E6EBF0;
 
   // Font
   --font-family: 'Circular Std', 'Circular-Std', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -65,51 +67,44 @@ html, body {
   background: var(--bg-white);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.2;
 }
 
 // ---- ng-select overrides to match design ----
 .ng-select {
-  font-family: var(--font-family) !important;
+  font-family: var(--font-family);
 
   .ng-select-container {
-    border: 1px solid var(--stroke-dark) !important;
-    border-radius: 8px !important;
-    min-height: 40px !important;
-    font-size: 14px !important;
-
-    &:hover {
-      border-color: var(--primary-light) !important;
-    }
+    border: 1px solid var(--stroke-dark);
+    border-radius: 8px;
+    min-height: 40px;
+    font-size: 14px;
   }
 
   &.ng-select-focused {
     .ng-select-container {
-      // border-color: var(--primary-light) !important;
-      box-shadow: 0 0 0 2px rgba(86, 89, 255, 0.15) !important;
-      // border-radius: 12px 0 0 12px !important;
+      border-color: var(--primary-light);
     }
   }
 
   .ng-dropdown-panel {
-    border: 1px solid var(--stroke-dark) !important;
-    border-radius: 8px !important;
-    box-shadow: var(--shadow-md) !important;
-    margin-top: 4px !important;
+    border-radius: 5px;
+    box-shadow: var(--shadow-dropdown);
+    margin-top: 4px;
 
     .ng-dropdown-panel-items {
-      .ng-option {
-        padding: 8px 12px !important;
-        font-size: 14px !important;
-        font-family: var(--font-family) !important;
+      padding: 12px 0;
+      border-radius: 5px;
 
-        &.ng-option-marked {
-          background: var(--bg-hover) !important;
-        }
+      .ng-option {
+        padding: 4px 12px;
+        font-size: 14px;
+        font-family: var(--font-family);
+        background: var(--bg-white) !important;
+        font-weight: 400;
 
         &.ng-option-selected {
-          background: var(--primary-bg) !important;
-          color: var(--primary) !important;
-          font-weight: 500 !important;
+          color: var(--primary);
         }
       }
     }
@@ -117,43 +112,43 @@ html, body {
 
 }
 
+
 // ---- ngb-datepicker overrides ----
 .ngb-dp-header {
-  background: var(--bg-white) !important;
+  background: var(--bg-white);
 }
 
 ngb-datepicker {
-  font-family: var(--font-family) !important;
-  border: 1px solid var(--stroke-dark) !important;
-  border-radius: 8px !important;
-  box-shadow: var(--shadow-md) !important;
+  font-family: var(--font-family);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
 
   .ngb-dp-weekday {
-    color: var(--text-secondary) !important;
-    font-size: 12px !important;
+    color: var(--text-secondary);
+    font-size: 12px;
   }
 
   .ngb-dp-day {
     .btn-light {
-      border-radius: 50% !important;
-      width: 32px !important;
-      height: 32px !important;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
 
       &:hover {
-        background: var(--primary-bg) !important;
-        color: var(--primary) !important;
+        background: var(--primary-bg);
+        color: var(--primary);
       }
 
       &.bg-primary {
-        background: var(--primary) !important;
-        color: #fff !important;
-        border-radius: 50% !important;
+        background: var(--primary);
+        color: #fff;
+        border-radius: 50%;
       }
     }
   }
 
   .ngb-dp-navigation-chevron {
-    color: var(--text-primary) !important;
+    color: var(--text-primary);
   }
 }
 
@@ -174,4 +169,45 @@ ngb-datepicker {
   &:hover {
     background: var(--text-secondary);
   }
+}
+
+
+.work-order-form {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .form-label {
+    font-family: var(--font-family);
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin: 0;
+
+  }
+
+  .form-input {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 5px;
+    font-family: var(--font-family);
+    font-size: 14px;
+    color: var(--text-primary);
+    background: var(--bg-white);
+    box-shadow: 0 0 0 1px rgba(216, 220, 235, 1), 0 1.5px 3px -1.5px rgba(200, 207, 233, 1), 0 1px 0.5px -1px rgba(216, 220, 235, 1);
+    border: none;
+
+
+    &::placeholder {
+      color: var(--text-disabled);
+    }
+  }
+
 }
