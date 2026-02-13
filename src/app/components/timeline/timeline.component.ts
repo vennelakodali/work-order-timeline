@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Subscription } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import type { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { WorkOrderService } from '../../services/work-order.service';
 import { WorkCenterDocument } from '../../models/work-center.model';
@@ -32,7 +32,7 @@ import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 })
 export class TimelineComponent implements OnInit, OnDestroy {
   @ViewChild('timelineScroll', { static: false }) timelineScroll!: ElementRef<HTMLDivElement>;
-  @ViewChild('hoverButtonTooltip') hoverButtonTooltip!: NgbTooltip;
+  @ViewChild('hoverButtonTooltip') hoverButtonTooltip?: NgbTooltip;
 
   workCenters: WorkCenterDocument[] = [];
   workOrders: WorkOrderDocument[] = [];
@@ -51,34 +51,31 @@ export class TimelineComponent implements OnInit, OnDestroy {
   todayPosition = 0;
 
   readonly workCenterColumnWidth = 380; // Matches --panel-width in styles.scss
-  private readonly HOVER_BUTTON_WIDTH = 113;
-  private readonly HOVER_BUTTON_HEIGHT = 38;
-  private readonly HOVER_BUTTON_MARGIN = 20;
 
-  private subscriptions = new Subscription();
+  private destroy$ = new Subject<void>();
   private today = new Date();
 
   constructor(private workOrderService: WorkOrderService) { }
 
   ngOnInit(): void {
-    this.subscriptions.add(
-      this.workOrderService.workCenters$.subscribe(centers => {
-        this.workCenters = centers;
-      })
-    );
-    this.subscriptions.add(
-      this.workOrderService.workOrders$.subscribe(orders => {
+    this.workOrderService.workCenters$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(centers => this.workCenters = centers);
+
+    this.workOrderService.workOrders$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(orders => {
         this.workOrders = orders;
         this.recalculateTodayPosition();
-      })
-    );
+      });
 
     this.regenerateColumns();
-    setTimeout(() => this.scrollToToday(), 100);
+    this.deferredScrollToToday();
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   // ---------------------------------------------------------------------------
@@ -119,13 +116,8 @@ export class TimelineComponent implements OnInit, OnDestroy {
     );
   }
 
-  /** Check if a column contains the current period (today) */
   isCurrentPeriod(col: TimelineColumn): boolean {
-    return TimelineComponent.checkIfCurrentPeriod(col, this.today);
-  }
-
-  private static checkIfCurrentPeriod(col: TimelineColumn, today: Date): boolean {
-    return today >= col.startDate && today < col.endDate;
+    return this.today >= col.startDate && this.today < col.endDate;
   }
 
   // ---------------------------------------------------------------------------
@@ -133,8 +125,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
   // ---------------------------------------------------------------------------
 
   onTimelineClick(event: MouseEvent, workCenterId: string): void {
-    const target = event.target as HTMLElement;
-    if (target.closest('app-work-order-bar') || target.closest('.dropdown-container')) {
+    if ((event.target as HTMLElement).closest('app-work-order-bar, .dropdown-container')) {
       return;
     }
 
@@ -142,11 +133,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
     if (!scrollEl) return;
 
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    const xInRow = event.clientX - rect.left + scrollEl.scrollLeft;
-
-    // Convert from row coordinates to timeline coordinates
-    const xInTimeline = xInRow - this.workCenterColumnWidth;
-
+    const xInTimeline = event.clientX - rect.left + scrollEl.scrollLeft - this.workCenterColumnWidth;
     const clickDate = positionToDate(
       xInTimeline,
       this.columnConfig.timelineStartDate,
@@ -160,20 +147,22 @@ export class TimelineComponent implements OnInit, OnDestroy {
   onTimescaleChange(level: string): void {
     this.timescale = level;
     this.regenerateColumns();
-    setTimeout(() => this.scrollToToday(), 50);
+    this.deferredScrollToToday();
   }
 
   scrollToToday(): void {
     const scrollEl = this.timelineScroll?.nativeElement;
     if (!scrollEl) return;
     const viewportWidth = scrollEl.clientWidth;
-    // Account for the sticky work center column when centering
     scrollEl.scrollLeft = this.todayPosition - viewportWidth / 2 - this.workCenterColumnWidth / 2;
+  }
+
+  private deferredScrollToToday(): void {
+    setTimeout(() => this.scrollToToday(), 100);
   }
 
   onRowHover(event: MouseEvent | null, centerId: string | null): void {
     this.hoveredRowId = centerId;
-
     if (event && centerId) {
       this.updateHoverButton(event, centerId);
     } else {
@@ -182,126 +171,42 @@ export class TimelineComponent implements OnInit, OnDestroy {
   }
 
   onRowMouseMove(event: MouseEvent, centerId: string): void {
-    if (this.isOverWorkCenterColumn(event)) {
-      if (this.hoverButtonPosition) {
-        this.clearHoverButton();
-      }
-      return;
-    }
+    const scrollEl = this.timelineScroll?.nativeElement;
+    if (!scrollEl || this.hoveredRowId !== centerId) return;
 
-    if (this.hoveredRowId === centerId && this.hoverButtonPosition) {
-      // Clear button if cursor moved outside bounds OR if now over a work order bar
-      if (this.isCursorOutsideButtonBounds(event) || this.isOverOrderBar(event)) {
-        this.clearHoverButton();
-      } else {
-        // Also check if still over empty space using coordinates
-        const scrollEl = this.timelineScroll?.nativeElement;
-        if (scrollEl) {
-          const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-          const xInRow = event.clientX - rect.left;
-          const xInRowWithScroll = xInRow + scrollEl.scrollLeft;
-          const xInTimeline = xInRowWithScroll - this.workCenterColumnWidth;
-
-          if (!this.isOverEmptySpace(centerId, xInTimeline)) {
-            this.clearHoverButton();
-          }
-        }
-      }
-    } else if (this.hoveredRowId === centerId && !this.hoverButtonPosition) {
+    if (this.hoverButtonPosition) {
+      const shouldClear = !this.isOverEmptySpace(event, centerId, scrollEl);
+      if (shouldClear) this.clearHoverButton();
+    } else {
       this.updateHoverButton(event, centerId);
     }
   }
 
   private updateHoverButton(event: MouseEvent, centerId: string): void {
-    if (this.isOverWorkCenterColumn(event) || this.isOverOrderBar(event)) {
-      return;
-    }
-
     const scrollEl = this.timelineScroll?.nativeElement;
     if (!scrollEl) return;
 
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    const xInRow = event.clientX - rect.left;
-    const xInRowWithScroll = xInRow + scrollEl.scrollLeft;
-
-    // Convert from row coordinates to timeline coordinates
-    // Row coordinates include the work center column, but bar positions don't
-    const xInTimeline = xInRowWithScroll - this.workCenterColumnWidth;
-
-    if (this.isOverEmptySpace(centerId, xInTimeline)) {
-      this.showHoverButton(event, rect);
+    if (this.isOverEmptySpace(event, centerId, scrollEl)) {
+      const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+      this.hoverButtonPosition = {
+        x: event.clientX,
+        y: rect.top + rect.height / 2
+      };
+      setTimeout(() => this.hoverButtonTooltip?.open(), 0);
     }
-  }
-
-  private isOverWorkCenterColumn(event: MouseEvent): boolean {
-    return TimelineComponent.checkIfOverWorkCenterColumn(event, this.workCenterColumnWidth);
-  }
-
-  private static checkIfOverWorkCenterColumn(event: MouseEvent, workCenterWidth: number): boolean {
-    const target = event.target as HTMLElement;
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    const xInRow = event.clientX - rect.left;
-    return target.closest('.work-center-cell') !== null || xInRow < workCenterWidth;
-  }
-
-  private isOverOrderBar(event: MouseEvent): boolean {
-    return TimelineComponent.checkIfOverOrderBar(event);
-  }
-
-  private static checkIfOverOrderBar(event: MouseEvent): boolean {
-    const target = event.target as HTMLElement;
-    return target.closest('app-work-order-bar') !== null;
-  }
-
-  private isOverEmptySpace(centerId: string, xPosition: number): boolean {
-    const orders = this.getOrdersForCenter(centerId);
-    const bars = orders.map(order => this.calcBarStyle(order));
-    return TimelineComponent.checkIfOverEmptySpace(xPosition, bars);
-  }
-
-  private static checkIfOverEmptySpace(
-    xPosition: number,
-    bars: Array<{ left: number; width: number }>
-  ): boolean {
-    return !bars.some(bar => xPosition >= bar.left && xPosition <= (bar.left + bar.width));
-  }
-
-  private isCursorOutsideButtonBounds(event: MouseEvent): boolean {
-    if (!this.hoverButtonPosition) return true;
-
-    return TimelineComponent.checkIfCursorOutsideButtonBounds(
-      event,
-      this.hoverButtonPosition,
-      this.HOVER_BUTTON_WIDTH,
-      this.HOVER_BUTTON_HEIGHT,
-      this.HOVER_BUTTON_MARGIN
-    );
-  }
-
-  private static checkIfCursorOutsideButtonBounds(
-    event: MouseEvent,
-    buttonPosition: { x: number; y: number },
-    buttonWidth: number,
-    buttonHeight: number,
-    margin: number
-  ): boolean {
-    const distanceX = Math.abs(event.clientX - buttonPosition.x);
-    const distanceY = Math.abs(event.clientY - buttonPosition.y);
-
-    return distanceX > (buttonWidth / 2 + margin) || distanceY > (buttonHeight / 2 + margin);
-  }
-
-  private showHoverButton(event: MouseEvent, rowRect: DOMRect): void {
-    this.hoverButtonPosition = {
-      x: event.clientX,
-      y: rowRect.top + (rowRect.height / 2)
-    };
-    setTimeout(() => this.hoverButtonTooltip?.open(), 0);
   }
 
   private clearHoverButton(): void {
     this.hoverButtonPosition = null;
     this.hoverButtonTooltip?.close();
+  }
+
+  private isOverEmptySpace(event: MouseEvent, centerId: string, scrollEl: HTMLDivElement): boolean {
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const xInTimeline = event.clientX - rect.left + scrollEl.scrollLeft - this.workCenterColumnWidth;
+    const orders = this.getOrdersForCenter(centerId);
+    const bars = orders.map(order => this.calcBarStyle(order));
+    return !bars.some(bar => xInTimeline >= bar.left && xInTimeline <= bar.left + bar.width);
   }
 
 
@@ -310,27 +215,30 @@ export class TimelineComponent implements OnInit, OnDestroy {
   // ---------------------------------------------------------------------------
 
   openCreatePanel(workCenterId: string, startDate: string): void {
-    this.panelMode = 'create';
-    this.panelWorkCenterId = workCenterId;
-    this.panelStartDate = startDate;
-    this.editingOrder = null;
-    this.panelOpen = true;
+    this.openPanel('create', workCenterId, startDate, null);
   }
 
   openEditPanel(order: WorkOrderDocument): void {
-    this.panelMode = 'edit';
-    this.panelWorkCenterId = order.data.workCenterId;
-    this.panelStartDate = order.data.startDate;
+    this.openPanel('edit', order.data.workCenterId, order.data.startDate, order);
+  }
+
+  onPanelClose(): void {
+    this.closePanel();
+  }
+
+  onPanelSave(): void {
+    this.closePanel();
+  }
+
+  private openPanel(mode: PanelMode, workCenterId: string, startDate: string, order: WorkOrderDocument | null): void {
+    this.panelMode = mode;
+    this.panelWorkCenterId = workCenterId;
+    this.panelStartDate = startDate;
     this.editingOrder = order;
     this.panelOpen = true;
   }
 
-  onPanelClose(): void {
-    this.panelOpen = false;
-    this.editingOrder = null;
-  }
-
-  onPanelSave(): void {
+  private closePanel(): void {
     this.panelOpen = false;
     this.editingOrder = null;
   }
@@ -347,15 +255,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
   // Track-by functions
   // ---------------------------------------------------------------------------
 
-  trackByCenter(_index: number, center: WorkCenterDocument): string {
-    return center.docId;
-  }
-
-  trackByOrder(_index: number, order: WorkOrderDocument): string {
-    return order.docId;
-  }
-
-  trackByColumn(_index: number, col: TimelineColumn): string {
-    return col.label;
-  }
+  trackByCenter = (_: number, center: WorkCenterDocument) => center.docId;
+  trackByOrder = (_: number, order: WorkOrderDocument) => order.docId;
+  trackByColumn = (_: number, col: TimelineColumn) => col.label;
 }
