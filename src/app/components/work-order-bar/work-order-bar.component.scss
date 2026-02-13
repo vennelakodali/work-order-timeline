@@ -3,9 +3,6 @@
 // =============================================================================
 
 :host {
-  position: absolute;
-  top: 8px;
-  height: calc(var(--row-height) - 16px);
   z-index: 3;
 
   &:has(.hovered) {
@@ -16,11 +13,12 @@
 .work-order-bar {
   position: absolute;
   top: 0;
-  height: 100%;
+  height: 38px;
   display: flex;
   align-items: center;
+  align-self: anchor-center;
   gap: 6px;
-  padding: 10px 8px;
+  padding: 12px 8px;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s ease;
