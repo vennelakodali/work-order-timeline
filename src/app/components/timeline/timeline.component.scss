@@ -62,7 +62,6 @@
 .work-center-header {
   width: var(--panel-width);
   padding: 0 16px;
-  font-size: 14px;
   font-weight: 500;
   color: var(--text-secondary);
   border-bottom: 1px solid var(--separator-border);
@@ -77,7 +76,6 @@
 }
 
 .column-header {
-  font-size: 14px;
   font-weight: 500;
   color: var(--text-secondary);
   border-bottom: 1px solid var(--separator-border);
@@ -181,8 +179,6 @@
   pointer-events: none;
   box-shadow: var(--shadow-hover-button);
   transition: opacity 0.1s ease;
-  font-size: 14px;
-  font-weight: 400;
 }
 
 .today-indicator {
@@ -217,8 +213,6 @@
   .add-new-dates-tooltip {
     background: var(--text-secondary);
     color: var(--text-tooltip);
-    font-size: 14px;
-    font-weight: 400;
     padding: 4px 8px;
     border-radius: 8px;
     box-shadow: var(--shadow-tooltip);

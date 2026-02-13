@@ -10,13 +10,6 @@ import { isoToNgbDate, ngbDateToIso, ngbDateToDate, formatNgbDate } from '../../
 import { trigger, transition, style, animate } from '@angular/animations';
 import { STATUS_PILL_CONFIG } from '../../constants/status-config';
 
-/**
- * Slide Panel Component
- *
- * Slides in from the right for creating/editing work orders.
- * Uses Angular Reactive Forms with FormGroup and FormControl.
- * Form field order per design: Work Order Name, Status, End date, Start date.
- */
 @Component({
   selector: 'app-slide-panel',
   standalone: true,
@@ -57,7 +50,7 @@ export class SlidePanelComponent implements OnInit {
 
   readonly formatDate = formatNgbDate;
 
-  constructor(private workOrderService: WorkOrderService) {}
+  constructor(private workOrderService: WorkOrderService) { }
 
   ngOnInit(): void {
     this.initForm();
@@ -127,7 +120,7 @@ export class SlidePanelComponent implements OnInit {
       error = this.workOrderService.createWorkOrder(data);
     }
 
-    console.log({error})
+    console.log({ error })
 
     if (error) {
       this.overlapError = error;

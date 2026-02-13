@@ -24,7 +24,7 @@
   />
 
   <!-- Three-dot actions menu (always rendered, visible on hover) -->
-  <app-dropdown align="right" #actionsDropdown>
+  <app-dropdown align="right" [autoCloseOthers]="true" #actionsDropdown>
     <button trigger class="actions-btn" title="Actions">
       <img src="assets/icons/hover.svg" alt="Actions" class="actions-icon" />
     </button>

@@ -19,7 +19,7 @@
   }
 
   ::ng-deep .dropdown-panel {
-    min-width: 180px;
+    width: 280px;
     box-shadow: var(--shadow-dropdown-elevated);
   }
 
@@ -78,7 +78,6 @@
     width: 100%;
     text-align: left;
     background: none;
-    font-size: 14px;
     padding: 4px 12px;
     color: var(--text-primary-2);
     cursor: pointer;
@@ -96,8 +95,6 @@
     background: var(--bg-white);
     border: none;
     border-radius: 5px;
-    font-size: 13px;
-    font-weight: 400;
     color: var(--text-secondary);
     padding: 4px 12px;
     cursor: pointer;

@@ -57,8 +57,6 @@
 
   .bar-name {
     font-family: var(--font-family);
-    font-size: 14px;
-    font-weight: 400;
     color: var(--text-primary);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -105,6 +103,7 @@
     top: calc(100% + 8px);
     box-shadow: var(--shadow-dropdown-elevated);
     border-radius: 5px;
+    width: 200px;
   }
 
   // Show actions button on bar hover
@@ -126,11 +125,9 @@
     text-align: left;
     background: none;
     font-family: var(--font-family);
-    font-size: 14px;
     padding: 8px 14px;
     color: var(--text-primary-2);
     cursor: pointer;
-    font-weight: 400;
 
     &.delete {
       color: var(--primary-shade);
@@ -143,8 +140,6 @@
 .bar-tooltip {
   background: var(--text-secondary);
   color: var(--text-tooltip);
-  font-size: 14px;
-  font-weight: 400;
   padding: 4px 8px;
   border-radius: 8px;
   box-shadow: var(--shadow-tooltip);

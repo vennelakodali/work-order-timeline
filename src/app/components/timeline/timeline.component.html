@@ -50,7 +50,6 @@
               bgColor="var(--current-period-pill-bg)"
             />
 
-            <!-- Work Order Bars (only rendered in first cell, positioned absolutely) -->
             <ng-container *ngIf="col === columns[0]">
               <app-work-order-bar
                 *ngFor="let order of getOrdersForCenter(center.docId); trackBy: trackByOrder"
@@ -93,6 +92,12 @@
     >
       +
     </button>
+
+    <ng-template #addNewDatesTooltip>
+      <div class="add-new-dates-tooltip">
+        <span>Click to add dates</span>
+      </div>
+    </ng-template>
   </div>
 </div>
 
@@ -114,10 +119,3 @@
   (click)="onPanelClose()"
   @fadeIn
 ></div>
-
-
-  <ng-template #addNewDatesTooltip>
-    <div class="add-new-dates-tooltip">
-      <span>Click to add dates</span>
-    </div>
-  </ng-template>

@@ -11,6 +11,61 @@ export interface TimelineColumnConfig {
   timelineEndDate: Date;
 }
 
+// Timeline configuration constants
+const TIMESCALE_CONFIG = {
+  Hour: { columnWidth: 60, range: 12, unit: 'hour' as const },
+  Day: { columnWidth: 80, range: 30, unit: 'day' as const },
+  Week: { columnWidth: 120, range: 12, unit: 'week' as const },
+  Month: { columnWidth: 160, range: 8, unit: 'month' as const },
+} as const;
+
+const DAYS_PER_WEEK = 7;
+
+// Date helper functions
+const addHours = (date: Date, hours: number): Date => {
+  const result = new Date(date);
+  result.setHours(result.getHours() + hours);
+  return result;
+};
+
+const addDays = (date: Date, days: number): Date => {
+  const result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result;
+};
+
+const addMonths = (date: Date, months: number): Date => {
+  const result = new Date(date);
+  result.setMonth(result.getMonth() + months);
+  return result;
+};
+
+const getMonthStart = (date: Date): Date => {
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+};
+
+// Returns the start of the next month (consistent with other interval endpoints)
+const getMonthEnd = (date: Date): Date => {
+  return new Date(date.getFullYear(), date.getMonth() + 1, 1);
+};
+
+// Align date to the previous Monday (or same day if already Monday)
+const alignToMonday = (date: Date): Date => {
+  const dayOfWeek = date.getDay();
+  const daysFromMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Sunday is 0, so it's 6 days from Monday
+  return addDays(date, -daysFromMonday);
+};
+
+const countPeriods = (start: Date, end: Date, incrementFn: (d: Date) => Date): number => {
+  let count = 0;
+  let current = new Date(start);
+  while (current <= end) {
+    count++;
+    current = incrementFn(current);
+  }
+  return count;
+};
+
 /**
  * Generate timeline columns for a given timescale, centered around a reference date.
  *
@@ -23,114 +78,124 @@ export function generateTimelineColumns(
   timescale: string,
   referenceDate: Date = new Date()
 ): TimelineColumnConfig {
-  const now = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), referenceDate.getDate());
+  const normalizedDate = new Date(
+    referenceDate.getFullYear(),
+    referenceDate.getMonth(),
+    referenceDate.getDate()
+  );
 
   switch (timescale) {
     case 'Hour':
-      return generateHourColumns(now);
+      return generateHourColumns(normalizedDate);
     case 'Day':
-      return generateDayColumns(now);
+      return generateDayColumns(normalizedDate);
     case 'Week':
-      return generateWeekColumns(now);
+      return generateWeekColumns(normalizedDate);
     case 'Month':
     default:
-      return generateMonthColumns(now);
+      return generateMonthColumns(normalizedDate);
   }
 }
 
 function generateHourColumns(now: Date): TimelineColumnConfig {
-  const columnWidth = 60;
-  const start = new Date(now);
-  start.setHours(start.getHours() - 12);
-  const end = new Date(now);
-  end.setHours(end.getHours() + 12);
+  const { columnWidth, range } = TIMESCALE_CONFIG.Hour;
+  const startDate = addHours(now, -range);
+  const endDate = addHours(now, range);
 
-  const columns: TimelineColumn[] = [];
-  const current = new Date(start);
-  while (current <= end) {
-    const colStart = new Date(current);
-    const colEnd = new Date(current);
-    colEnd.setHours(colEnd.getHours() + 1);
-    columns.push({
-      label: current.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+  const columnCount = countPeriods(startDate, endDate, (d) => addHours(d, 1));
+
+  const columns: TimelineColumn[] = Array.from({ length: columnCount }, (_, index) => {
+    const colStart = addHours(startDate, index);
+    const colEnd = addHours(colStart, 1);
+
+    return {
+      label: colStart.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+      }),
       startDate: colStart,
-      endDate: colEnd
-    });
-    current.setHours(current.getHours() + 1);
-  }
+      endDate: colEnd,
+    };
+  });
 
-  return { columns, columnWidth, timelineStartDate: new Date(start), timelineEndDate: new Date(end) };
+  return { columns, columnWidth, timelineStartDate: startDate, timelineEndDate: endDate };
 }
 
 function generateDayColumns(now: Date): TimelineColumnConfig {
-  const columnWidth = 80;
-  const start = new Date(now);
-  start.setDate(start.getDate() - 30);
-  const end = new Date(now);
-  end.setDate(end.getDate() + 30);
+  const { columnWidth, range } = TIMESCALE_CONFIG.Day;
+  const startDate = addDays(now, -range);
+  const endDate = addDays(now, range);
 
-  const columns: TimelineColumn[] = [];
-  const current = new Date(start);
-  while (current <= end) {
-    const colStart = new Date(current);
-    const colEnd = new Date(current);
-    colEnd.setDate(colEnd.getDate() + 1);
-    columns.push({
-      label: current.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+  const columnCount = countPeriods(startDate, endDate, (d) => addDays(d, 1));
+
+  const columns: TimelineColumn[] = Array.from({ length: columnCount }, (_, index) => {
+    const colStart = addDays(startDate, index);
+    const colEnd = addDays(colStart, 1);
+
+    return {
+      label: colStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
       startDate: colStart,
-      endDate: colEnd
-    });
-    current.setDate(current.getDate() + 1);
-  }
+      endDate: colEnd,
+    };
+  });
 
-  return { columns, columnWidth, timelineStartDate: new Date(start), timelineEndDate: new Date(end) };
+  return { columns, columnWidth, timelineStartDate: startDate, timelineEndDate: endDate };
 }
 
 function generateWeekColumns(now: Date): TimelineColumnConfig {
-  const columnWidth = 120;
-  const start = new Date(now);
-  start.setDate(start.getDate() - start.getDay() - 12 * 7);
-  const end = new Date(now);
-  end.setDate(end.getDate() + (6 - end.getDay()) + 12 * 7);
+  const { columnWidth, range } = TIMESCALE_CONFIG.Week;
 
-  const columns: TimelineColumn[] = [];
-  const current = new Date(start);
-  // Align to Monday
-  current.setDate(current.getDate() - current.getDay() + 1);
-  while (current <= end) {
-    const colStart = new Date(current);
-    const colEnd = new Date(current);
-    colEnd.setDate(colEnd.getDate() + 7);
-    const weekEnd = new Date(current);
-    weekEnd.setDate(weekEnd.getDate() + 6);
-    columns.push({
-      label: `${current.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { day: 'numeric' })}`,
+  // Calculate symmetric range around current date
+  const rangeInDays = range * DAYS_PER_WEEK;
+  const dayOfWeek = now.getDay();
+
+  // Start: go back by current day of week, then back by range in weeks
+  const startBoundary = addDays(now, -dayOfWeek - rangeInDays);
+  // End: go forward to end of week (Saturday), then forward by range in weeks
+  const endBoundary = addDays(now, (6 - dayOfWeek) + rangeInDays);
+
+  // Align start to Monday for column generation
+  const startDate = alignToMonday(startBoundary);
+
+  const columnCount = countPeriods(startDate, endBoundary, (d) => addDays(d, DAYS_PER_WEEK));
+
+  const columns: TimelineColumn[] = Array.from({ length: columnCount }, (_, index) => {
+    const colStart = addDays(startDate, index * DAYS_PER_WEEK);
+    const colEnd = addDays(colStart, DAYS_PER_WEEK);
+    const weekEnd = addDays(colStart, DAYS_PER_WEEK - 1);
+
+    const startLabel = colStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const endLabel = weekEnd.toLocaleDateString('en-US', { day: 'numeric' });
+
+    return {
+      label: `${startLabel} - ${endLabel}`,
       startDate: colStart,
-      endDate: colEnd
-    });
-    current.setDate(current.getDate() + 7);
-  }
+      endDate: colEnd,
+    };
+  });
 
-  return { columns, columnWidth, timelineStartDate: new Date(start), timelineEndDate: new Date(end) };
+  return { columns, columnWidth, timelineStartDate: startBoundary, timelineEndDate: endBoundary };
 }
 
 function generateMonthColumns(now: Date): TimelineColumnConfig {
-  const columnWidth = 160;
-  const start = new Date(now.getFullYear(), now.getMonth() - 8, 1);
-  const end = new Date(now.getFullYear(), now.getMonth() + 9, 0);
+  const { columnWidth, range } = TIMESCALE_CONFIG.Month;
+  const startDate = getMonthStart(addMonths(now, -range));
+  // End boundary is the last day of the target month (month +range)
+  const endBoundary = new Date(now.getFullYear(), now.getMonth() + range + 1, 0);
 
-  const columns: TimelineColumn[] = [];
-  const current = new Date(start);
-  while (current <= end) {
-    const colStart = new Date(current.getFullYear(), current.getMonth(), 1);
-    const colEnd = new Date(current.getFullYear(), current.getMonth() + 1, 1);
-    columns.push({
-      label: current.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+  const columnCount = countPeriods(startDate, endBoundary, (d) => addMonths(d, 1));
+
+  const columns: TimelineColumn[] = Array.from({ length: columnCount }, (_, index) => {
+    const colStart = getMonthStart(addMonths(startDate, index));
+    const colEnd = getMonthEnd(addMonths(startDate, index));
+
+    return {
+      label: colStart.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
       startDate: colStart,
-      endDate: colEnd
-    });
-    current.setMonth(current.getMonth() + 1);
-  }
+      endDate: colEnd,
+    };
+  });
 
-  return { columns, columnWidth, timelineStartDate: new Date(start), timelineEndDate: new Date(end) };
+  return { columns, columnWidth, timelineStartDate: startDate, timelineEndDate: endBoundary };
 }

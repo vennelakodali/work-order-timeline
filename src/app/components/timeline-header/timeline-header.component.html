@@ -1,25 +1,24 @@
 <div class="timeline-header">
   <div class="timescale-container">
     <h1 class="title">Work Orders</h1>
-      <app-dropdown #timescaleDropdown>
-        <button trigger class="timescale-btn" [class.open]="timescaleDropdown.isOpen">
-          <span class="timescale-label">Timescale</span> 
-          <span class="timescale-button-text">{{getTimescaleDisplay()}}</span>
-          <img src="assets/icons/down.svg" 
-     class="img-fluid" 
-     alt="Icon">
-        </button>
-        <div panel>
-          <ul class="timescale-options-list">
-            <li
-              *ngFor="let opt of timescaleOptions"
-              class="timescale-option"
-              [class.active]="opt.value === currentTimescale"
-              (click)="timescaleChange.emit(opt.value); timescaleDropdown.close()"
-            >{{ opt.label }}</li>
-          </ul>
-        </div>
-  </app-dropdown>
+    <app-dropdown #timescaleDropdown>
+      <button trigger class="timescale-btn" [class.open]="timescaleDropdown.isOpen">
+        <span class="timescale-label">Timescale</span> 
+        <span class="timescale-button-text">{{getTimescaleDisplay()}}</span>
+        <img src="assets/icons/down.svg" 
+          alt="Open dropdown">
+      </button>
+      <div panel>
+        <ul class="timescale-options-list">
+          <li
+            *ngFor="let opt of timescaleOptions"
+            class="timescale-option"
+            [class.active]="opt.value === currentTimescale"
+            (click)="timescaleChange.emit(opt.value); timescaleDropdown.close()"
+          >{{ opt.label }}</li>
+        </ul>
+      </div>
+    </app-dropdown>
   </div>
 
   <button class="today-btn" (click)="todayClick.emit()" title="Scroll to today">

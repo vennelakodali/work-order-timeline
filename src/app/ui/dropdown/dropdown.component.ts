@@ -16,24 +16,38 @@ import { CommonModule } from '@angular/common';
 export class DropdownComponent {
   @Input() panelClass = '';
   @Input() align: 'left' | 'right' = 'left';
+  @Input() autoCloseOthers = false;
 
   isOpen = false;
+  private static currentOpenDropdown: DropdownComponent | null = null;
 
   constructor(private elRef: ElementRef) {}
 
   toggle(event: MouseEvent): void {
     event.stopPropagation();
     this.isOpen = !this.isOpen;
+    if (this.autoCloseOthers && this.isOpen) {
+      // Close any previously open dropdown
+      if (DropdownComponent.currentOpenDropdown && DropdownComponent.currentOpenDropdown !== this) {
+        DropdownComponent.currentOpenDropdown.close();
+      }
+      DropdownComponent.currentOpenDropdown = this;
+    }
   }
 
   close(): void {
-    this.isOpen = false;
+    if (this.isOpen) {
+      this.isOpen = false;
+      if (this.autoCloseOthers && DropdownComponent.currentOpenDropdown === this) {
+        DropdownComponent.currentOpenDropdown = null;
+      }
+    }
   }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     if (this.isOpen && !this.elRef.nativeElement.contains(event.target)) {
-      this.isOpen = false;
+      this.close();
     }
   }
 }
