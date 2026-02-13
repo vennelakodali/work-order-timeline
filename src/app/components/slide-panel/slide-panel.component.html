@@ -1,29 +1,37 @@
 <!-- Slide-out Panel -->
-<div class="slide-panel" @slideIn (@slideIn.done)="onAnimationDone($event)" *ngIf="!isLeaving">
+<div
+  class="slide-panel"
+  @slideIn
+  (@slideIn.done)="onAnimationDone($event)"
+  *ngIf="!isLeaving"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-label]="mode === 'edit' ? 'Edit work order' : 'Create new work order'"
+>
   <!-- Panel Header -->
   <div class="panel-header">
     <div class="panel-title-group">
-      <h2 class="panel-title">Work Order Details</h2>
+      <h2 class="panel-title" id="panel-title">Work Order Details</h2>
       <p class="panel-subtitle">Specify the dates, name and status for this order</p>
     </div>
     <div class="panel-actions">
-      <button class="btn-cancel" (click)="onCancel()">Cancel</button>
-      <button class="btn-primary" (click)="onSubmit()">
+      <button class="btn-cancel" (click)="onCancel()" type="button" aria-label="Cancel and close panel">Cancel</button>
+      <button class="btn-primary" (click)="onSubmit()" type="button" [attr.aria-label]="mode === 'edit' ? 'Save changes to work order' : 'Create new work order'">
         {{ mode === 'edit' ? 'Save' : 'Create' }}
       </button>
     </div>
   </div>
 
   <!-- Overlap Error Alert -->
-  <div class="error-alert" *ngIf="overlapError">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="#E53935">
+  <div class="error-alert" *ngIf="overlapError" role="alert" aria-live="assertive">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="#E53935" aria-hidden="true">
       <path d="M8 1C4.13 1 1 4.13 1 8s3.13 7 7 7 7-3.13 7-7-3.13-7-7-7zm0 11a1 1 0 110-2 1 1 0 010 2zm1-4H7V4h2v4z"/>
     </svg>
     <span>{{ overlapError }}</span>
   </div>
 
   <!-- Form -->
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="work-order-form">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="work-order-form" aria-labelledby="panel-title">
     <!-- Work Order Name -->
     <div class="form-group">
       <label class="form-label" for="wo-name">Work Order Name</label>
@@ -34,15 +42,19 @@
         formControlName="name"
         placeholder="Enter work order name..."
         [class.error]="form.get('name')?.invalid && form.get('name')?.touched"
+        aria-required="true"
+        [attr.aria-invalid]="form.get('name')?.invalid && form.get('name')?.touched"
       />
     </div>
 
     <!-- Status (ng-select with pill-styled options) -->
     <div class="form-group">
-      <label class="form-label">Status</label>
+      <label class="form-label" id="status-label">Status</label>
       <ng-select
         formControlName="status"
         [items]="statusOptions"
+        aria-labelledby="status-label"
+        aria-required="true"
         bindLabel="label"
         bindValue="value"
         [clearable]="false"
@@ -60,9 +72,10 @@
 
     <!-- End Date -->
     <div class="form-group">
-      <label class="form-label">End date</label>
+      <label class="form-label" for="end-date-display">End date</label>
       <div class="date-input-wrapper">
         <input
+          id="end-date-display"
           class="form-input date-display"
           [value]="formatDate(form.get('endDate')?.value)"
           readonly
@@ -70,6 +83,9 @@
           (click)="endDp.toggle()"
           [class.error]="form.hasError('dateRange') && form.touched"
           placement="bottom-start"
+          aria-label="End date picker"
+          aria-required="true"
+          [attr.aria-invalid]="form.hasError('dateRange') && form.touched"
         />
         <input
           type="text"
@@ -84,9 +100,10 @@
 
     <!-- Start Date -->
     <div class="form-group">
-      <label class="form-label">Start date</label>
+      <label class="form-label" for="start-date-display">Start date</label>
       <div class="date-input-wrapper">
         <input
+          id="start-date-display"
           class="form-input date-display"
           [value]="formatDate(form.get('startDate')?.value)"
           readonly
@@ -94,6 +111,9 @@
           (click)="startDp.toggle()"
           [class.error]="form.hasError('dateRange') && form.touched"
           placement="bottom-start"
+          aria-label="Start date picker"
+          aria-required="true"
+          [attr.aria-invalid]="form.hasError('dateRange') && form.touched"
         />
         <input
           type="text"

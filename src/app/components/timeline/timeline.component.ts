@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
 import { WorkOrderService } from '../../services/work-order.service';
@@ -19,7 +19,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
   imports: [CommonModule, WorkOrderBarComponent, SlidePanelComponent, TimelineHeaderComponent, TimelineHoverButtonComponent, PillComponent],
   templateUrl: './timeline.component.html',
   styleUrls: ['./timeline.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
     trigger('fadeIn', [
       transition(':enter', [
@@ -57,18 +57,25 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
   private readonly hoverButtonBounds = { width: 113, height: 38, margin: 20 };
 
-  constructor(private workOrderService: WorkOrderService) { }
+  constructor(
+    private workOrderService: WorkOrderService,
+    private cdr: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
     this.workOrderService.getWorkCenters$()
       .pipe(takeUntil(this.destroy$))
-      .subscribe(centers => this.workCenters = centers);
+      .subscribe(centers => {
+        this.workCenters = centers;
+        this.cdr.markForCheck();
+      });
 
     this.workOrderService.getWorkOrders$()
       .pipe(takeUntil(this.destroy$))
       .subscribe(orders => {
         this.workOrders = orders;
         this.recalculateTodayPosition();
+        this.cdr.markForCheck();
       });
 
     this.regenerateColumns();

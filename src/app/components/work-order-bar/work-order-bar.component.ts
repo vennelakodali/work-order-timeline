@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StatusConfig, WorkOrderDocument } from '../../models/work-order.model';
 import { DropdownComponent } from '../../ui/dropdown/dropdown.component';
@@ -11,7 +11,8 @@ import { WORK_ORDER_BAR_CONFIG, STATUS_PILL_CONFIG } from '../../constants/statu
   standalone: true,
   imports: [CommonModule, PillComponent, DropdownComponent, NgbTooltipModule],
   templateUrl: './work-order-bar.component.html',
-  styleUrls: ['./work-order-bar.component.scss']
+  styleUrls: ['./work-order-bar.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WorkOrderBarComponent {
   @Input() order!: WorkOrderDocument;

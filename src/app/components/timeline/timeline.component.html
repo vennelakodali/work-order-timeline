@@ -6,16 +6,18 @@
 />
 
 <!-- Main Timeline Table -->
-<div class="timeline-container">
-  <div class="timeline-scroll-wrapper" #timelineScroll>
-    <table class="timeline-table" [style.width.px]="totalTimelineWidth">
+<div class="timeline-container" role="region" aria-label="Work order timeline">
+  <div class="timeline-scroll-wrapper" #timelineScroll role="table" aria-label="Timeline grid showing work orders across work centers">
+    <table class="timeline-table" [style.width.px]="totalTimelineWidth" role="presentation">
       <thead>
         <tr>
-          <th class="work-center-header"><span>Work Center</span></th>
+          <th class="work-center-header" scope="col"><span>Work Center</span></th>
           <th
             *ngFor="let col of columns; trackBy: trackByColumn"
             class="column-header"
             [style.width.px]="columnWidth"
+            scope="col"
+            [attr.aria-label]="col.label"
           >
             <span>{{ col.label }}</span>
           </th>
@@ -25,7 +27,7 @@
         <!-- extra row to appease space concerns so as to not add exceptions for all downstream stylings -->
         <tr class="extra-row-for-spacing timeline-row">
           <td class="work-center-cell"></td>
-         <td *ngFor="let col of columns" class="column-cell"></td>
+         <td *ngFor="let col of columns; trackBy: trackByColumn" class="column-cell"></td>
         </tr>
         <tr
           *ngFor="let center of workCenters; trackBy: trackByCenter; let isFirst = first"
@@ -34,9 +36,10 @@
           (mouseenter)="onRowHover($event, center.docId)"
           (mouseleave)="onRowMouseLeave($event)"
           (mousemove)="onRowMouseMove($event, center.docId)"
+          [attr.aria-label]="'Work orders for ' + center.data.name"
         >
 
-          <td class="work-center-cell">
+          <td class="work-center-cell" role="rowheader" scope="row">
             <span class="work-center-name">{{ center.data.name }}</span>
           </td>
           <td
@@ -79,6 +82,8 @@
     <div
       class="today-indicator"
       [style.left.px]="todayPosition"
+      role="presentation"
+      aria-label="Current day indicator"
     >
       <div class="today-line"></div>
     </div>

@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, HostListener } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, HostListener, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
@@ -16,6 +16,7 @@ import { STATUS_PILL_CONFIG } from '../../constants/status-config';
   imports: [CommonModule, ReactiveFormsModule, NgSelectModule, NgbDatepickerModule, PillComponent],
   templateUrl: './slide-panel.component.html',
   styleUrls: ['./slide-panel.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [
     trigger('slideIn', [
       transition('void => *', [
@@ -51,7 +52,10 @@ export class SlidePanelComponent implements OnInit {
 
   readonly formatDate = formatNgbDate;
 
-  constructor(private workOrderService: WorkOrderService) { }
+  constructor(
+    private workOrderService: WorkOrderService,
+    private cdr: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
     this.initForm();
@@ -139,6 +143,7 @@ export class SlidePanelComponent implements OnInit {
 
     if (error) {
       this.overlapError = error;
+      this.cdr.markForCheck();
       return;
     }
 
@@ -147,5 +152,6 @@ export class SlidePanelComponent implements OnInit {
 
   onCancel(): void {
     this.isLeaving = true;
+    this.cdr.markForCheck();
   }
 }

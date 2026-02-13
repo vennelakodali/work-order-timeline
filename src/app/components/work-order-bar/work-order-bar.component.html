@@ -6,6 +6,9 @@
   [style.background]="config.bgColor"
   [style.borderColor]="config.borderColor"
   [ngbTooltip]="barTooltip"
+  role="button"
+  tabindex="0"
+  [attr.aria-label]="'Work order: ' + order.data.name + ', Status: ' + order.data.status + ', ' + order.data.startDate + ' to ' + order.data.endDate"
 >
   <!-- Work order name -->
   <span class="bar-name" [title]="order.data.name">{{ order.data.name }}</span>
@@ -21,13 +24,13 @@
 
   <!-- Three-dot actions menu (always rendered, visible on hover) -->
   <app-dropdown align="right" [autoCloseOthers]="true" #actionsDropdown>
-    <button trigger class="actions-btn" title="Actions">
-      <img src="assets/icons/hover.svg" alt="Actions" class="actions-icon" />
+    <button trigger class="actions-btn" title="Actions" aria-label="Work order actions menu" aria-haspopup="true" [attr.aria-expanded]="actionsDropdown?.isOpen">
+      <img src="assets/icons/hover.svg" alt="" class="actions-icon" aria-hidden="true" />
     </button>
-    <div panel>
+    <div panel role="menu" aria-label="Work order actions">
       <ul class="action-items-list">
-        <li class="action-item" (click)="onEdit($event)">Edit</li>
-        <li class="action-item delete" (click)="onDelete($event)">Delete</li>
+        <li class="action-item" (click)="onEdit($event)" role="menuitem" tabindex="0">Edit</li>
+        <li class="action-item delete" (click)="onDelete($event)" role="menuitem" tabindex="0">Delete</li>
       </ul>
     </div>
   </app-dropdown>
