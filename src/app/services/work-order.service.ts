@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { WorkCenterDocument } from '../models/work-center.model';
 import { WorkOrderDocument } from '../models/work-order.model';
-import { checkOverlap } from '../utils/overlap-detection';
+import { checkOverlap } from '../components/timeline/utils/overlap-detection';
 import { createSampleData } from '../data/sample-data';
 
 /**
@@ -16,9 +16,6 @@ export class WorkOrderService {
 
   private workCentersSubject = new BehaviorSubject<WorkCenterDocument[]>([]);
   private workOrdersSubject = new BehaviorSubject<WorkOrderDocument[]>([]);
-
-  workCenters$: Observable<WorkCenterDocument[]> = this.workCentersSubject.asObservable();
-  workOrders$: Observable<WorkOrderDocument[]> = this.workOrdersSubject.asObservable();
 
   constructor() {
     this.loadFromStorage();
@@ -56,20 +53,16 @@ export class WorkOrderService {
   // Read Operations
   // ---------------------------------------------------------------------------
 
-  getWorkCenters(): WorkCenterDocument[] {
-    return this.workCentersSubject.value;
+  getWorkCenters$(): Observable<WorkCenterDocument[]> {
+    return this.workCentersSubject.asObservable();
   }
 
-  getWorkOrders(): WorkOrderDocument[] {
-    return this.workOrdersSubject.value;
+  getWorkOrders$(): Observable<WorkOrderDocument[]> {
+    return this.workOrdersSubject.asObservable();
   }
 
-  getOrdersByWorkCenter(workCenterId: string): WorkOrderDocument[] {
+  private getOrdersByWorkCenter(workCenterId: string): WorkOrderDocument[] {
     return this.workOrdersSubject.value.filter(wo => wo.data.workCenterId === workCenterId);
-  }
-
-  getWorkOrderById(docId: string): WorkOrderDocument | undefined {
-    return this.workOrdersSubject.value.find(wo => wo.docId === docId);
   }
 
   // ---------------------------------------------------------------------------
@@ -126,11 +119,5 @@ export class WorkOrderService {
 
   private generateId(): string {
     return 'wo-' + Date.now().toString(36) + '-' + Math.random().toString(36).substring(2, 7);
-  }
-
-  resetToSampleData(): void {
-    localStorage.removeItem(this.STORAGE_KEY_CENTERS);
-    localStorage.removeItem(this.STORAGE_KEY_ORDERS);
-    this.initSampleData();
   }
 }

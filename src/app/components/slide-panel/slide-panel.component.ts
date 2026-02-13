@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
@@ -18,11 +18,11 @@ import { STATUS_PILL_CONFIG } from '../../constants/status-config';
   styleUrls: ['./slide-panel.component.scss'],
   animations: [
     trigger('slideIn', [
-      transition(':enter', [
+      transition('void => *', [
         style({ transform: 'translateX(100%)' }),
         animate('250ms ease-out', style({ transform: 'translateX(0)' }))
       ]),
-      transition(':leave', [
+      transition('* => void', [
         animate('200ms ease-in', style({ transform: 'translateX(100%)' }))
       ])
     ])
@@ -39,6 +39,7 @@ export class SlidePanelComponent implements OnInit {
 
   form!: FormGroup;
   overlapError: string | null = null;
+  isLeaving = false;
 
   statusOptions = STATUS_PILL_CONFIG.map(s => ({
     value: s.value,
@@ -54,6 +55,20 @@ export class SlidePanelComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  onKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      this.onCancel();
+    }
+  }
+
+  onAnimationDone(event: any): void {
+    // After leave animation completes, emit close event
+    if (this.isLeaving && event.toState === 'void') {
+      this.close.emit();
+    }
   }
 
   private initForm(): void {
@@ -131,12 +146,6 @@ export class SlidePanelComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.close.emit();
-  }
-
-  onKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Escape') {
-      this.onCancel();
-    }
+    this.isLeaving = true;
   }
 }

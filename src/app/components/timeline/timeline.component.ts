@@ -9,8 +9,8 @@ import { SlidePanelComponent } from '../slide-panel/slide-panel.component';
 import { TimelineHeaderComponent } from '../timeline-header/timeline-header.component';
 import { TimelineHoverButtonComponent } from './timeline-hover-button.component';
 import { PillComponent } from '../../ui/pill/pill.component';
-import { generateTimelineColumns, TimelineColumn, TimelineColumnConfig } from '../../utils/timeline-columns';
-import { dateToPosition, positionToDate, getBarStyle } from '../../utils/timeline-positioning';
+import { generateTimelineColumns, TimelineColumn, TimelineColumnConfig } from './utils/timeline-columns';
+import { dateToPosition, positionToDate, getBarStyle } from './utils/timeline-positioning';
 import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
@@ -31,6 +31,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 })
 export class TimelineComponent implements OnInit, OnDestroy {
   @ViewChild('timelineScroll', { static: false }) timelineScroll!: ElementRef<HTMLDivElement>;
+  @ViewChild(SlidePanelComponent) slidePanel?: SlidePanelComponent;
 
   workCenters: WorkCenterDocument[] = [];
   workOrders: WorkOrderDocument[] = [];
@@ -59,11 +60,11 @@ export class TimelineComponent implements OnInit, OnDestroy {
   constructor(private workOrderService: WorkOrderService) { }
 
   ngOnInit(): void {
-    this.workOrderService.workCenters$
+    this.workOrderService.getWorkCenters$()
       .pipe(takeUntil(this.destroy$))
       .subscribe(centers => this.workCenters = centers);
 
-    this.workOrderService.workOrders$
+    this.workOrderService.getWorkOrders$()
       .pipe(takeUntil(this.destroy$))
       .subscribe(orders => {
         this.workOrders = orders;
@@ -285,6 +286,12 @@ export class TimelineComponent implements OnInit, OnDestroy {
   // ---------------------------------------------------------------------------
 
   onPanelClose(): void {
+    // Trigger slide panel's close animation, which will emit close event
+    this.slidePanel?.onCancel();
+  }
+
+  onPanelCloseComplete(): void {
+    // Called after slide panel animation completes
     this.closePanel();
   }
 

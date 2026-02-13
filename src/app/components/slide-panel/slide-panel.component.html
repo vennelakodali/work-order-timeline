@@ -1,5 +1,5 @@
 <!-- Slide-out Panel -->
-<div class="slide-panel" @slideIn (keydown)="onKeydown($event)" tabindex="0">
+<div class="slide-panel" @slideIn (@slideIn.done)="onAnimationDone($event)" *ngIf="!isLeaving">
   <!-- Panel Header -->
   <div class="panel-header">
     <div class="panel-title-group">

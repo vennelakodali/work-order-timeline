@@ -1,4 +1,4 @@
-import { WorkOrderDocument } from '../models/work-order.model';
+import { WorkOrderDocument } from '../../../models/work-order.model';
 
 /**
  * Check if a proposed date range overlaps with any order in the list.
