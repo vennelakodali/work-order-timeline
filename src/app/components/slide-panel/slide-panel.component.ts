@@ -127,6 +127,8 @@ export class SlidePanelComponent implements OnInit {
       error = this.workOrderService.createWorkOrder(data);
     }
 
+    console.log({error})
+
     if (error) {
       this.overlapError = error;
       return;

@@ -20,6 +20,7 @@ export class WorkOrderBarComponent {
 
   @Output() edit = new EventEmitter<WorkOrderDocument>();
   @Output() delete = new EventEmitter<string>();
+  @Output() barClick = new EventEmitter<WorkOrderDocument>();
 
   @ViewChild('actionsDropdown') actionsDropdown?: DropdownComponent;
 
@@ -33,6 +34,10 @@ export class WorkOrderBarComponent {
     return STATUS_PILL_CONFIG.find(s => s.value === this.order.data.status) || STATUS_PILL_CONFIG[0];
   }
 
+  onBarClick(): void {
+    this.barClick.emit(this.order);
+  }
+
   onEdit(event: MouseEvent): void {
     event.stopPropagation();
     this.actionsDropdown?.close();
@@ -43,6 +48,10 @@ export class WorkOrderBarComponent {
     event.stopPropagation();
     this.actionsDropdown?.close();
     this.delete.emit(this.order.docId);
+  }
+
+  onMouseEnter(): void {
+    this.isHovered = true;
   }
 
   onMouseLeave(): void {

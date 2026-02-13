@@ -6,6 +6,8 @@
   [style.color]="config.textColor"
   [style.background]="config.bgColor"
   [style.borderColor]="config.borderColor"
+  (click)="onBarClick()"
+  (mouseenter)="onMouseEnter()"
   (mouseleave)="onMouseLeave()"
 >
   <!-- Work order name -->

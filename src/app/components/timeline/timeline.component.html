@@ -58,6 +58,7 @@
                 [order]="order"
                 [leftPx]="calcBarStyle(order).left"
                 [widthPx]="calcBarStyle(order).width"
+                (barClick)="openEditPanel($event)"
                 (edit)="onEditOrder($event)"
                 (delete)="onDeleteOrder($event)"
               />
