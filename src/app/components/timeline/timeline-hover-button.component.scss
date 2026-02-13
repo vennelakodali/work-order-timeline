@@ -1,0 +1,44 @@
+.hover-add-button {
+  position: fixed;
+  z-index: 100;
+  transform: translate(-50%, -50%);
+  padding: 6px 12px;
+  height: 38px;
+  width: 113px;
+  background: var(--bg-hover-button);
+  color: transparent;
+  border: 1px solid var(--bg-hover-button-border);
+  border-radius: 8px;
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: var(--shadow-hover-button);
+  transition: opacity 0.1s ease;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.add-new-dates-tooltip {
+  background: var(--text-secondary);
+  color: var(--text-tooltip);
+  padding: 4px 8px;
+  border-radius: 8px;
+  box-shadow: var(--shadow-tooltip);
+  white-space: nowrap;
+  border: none;
+}
+
+:host ::ng-deep .tooltip-arrow {
+  display: none !important;
+}
+
+:host ::ng-deep .tooltip-inner {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+:host ::ng-deep .tooltip {
+  border: none !important;
+}

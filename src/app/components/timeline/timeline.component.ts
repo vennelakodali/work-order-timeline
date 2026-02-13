@@ -1,23 +1,22 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
-import type { NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
 import { WorkOrderService } from '../../services/work-order.service';
 import { WorkCenterDocument } from '../../models/work-center.model';
 import { WorkOrderDocument, PanelMode, TimescaleLevels } from '../../models/work-order.model';
 import { WorkOrderBarComponent } from '../work-order-bar/work-order-bar.component';
 import { SlidePanelComponent } from '../slide-panel/slide-panel.component';
 import { TimelineHeaderComponent } from '../timeline-header/timeline-header.component';
+import { TimelineHoverButtonComponent } from './timeline-hover-button.component';
 import { PillComponent } from '../../ui/pill/pill.component';
 import { generateTimelineColumns, TimelineColumn, TimelineColumnConfig } from '../../utils/timeline-columns';
 import { dateToPosition, positionToDate, getBarStyle } from '../../utils/timeline-positioning';
 import { trigger, transition, style, animate } from '@angular/animations';
-import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-timeline',
   standalone: true,
-  imports: [CommonModule, WorkOrderBarComponent, SlidePanelComponent, TimelineHeaderComponent, PillComponent, NgbTooltipModule],
+  imports: [CommonModule, WorkOrderBarComponent, SlidePanelComponent, TimelineHeaderComponent, TimelineHoverButtonComponent, PillComponent],
   templateUrl: './timeline.component.html',
   styleUrls: ['./timeline.component.scss'],
   changeDetection: ChangeDetectionStrategy.Default,
@@ -32,7 +31,6 @@ import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 })
 export class TimelineComponent implements OnInit, OnDestroy {
   @ViewChild('timelineScroll', { static: false }) timelineScroll!: ElementRef<HTMLDivElement>;
-  @ViewChild('hoverButtonTooltip') hoverButtonTooltip?: NgbTooltip;
 
   workCenters: WorkCenterDocument[] = [];
   workOrders: WorkOrderDocument[] = [];
@@ -48,12 +46,15 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
   hoveredRowId: string | null = null;
   hoverButtonPosition: { x: number; y: number } | null = null;
+  hoveredWorkCenterId: string | null = null;
   todayPosition = 0;
 
   readonly workCenterColumnWidth = 380; // Matches --panel-width in styles.scss
 
   private destroy$ = new Subject<void>();
   private today = new Date();
+
+  private readonly hoverButtonBounds = { width: 113, height: 38, margin: 20 };
 
   constructor(private workOrderService: WorkOrderService) { }
 
@@ -132,8 +133,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
     const scrollEl = this.timelineScroll?.nativeElement;
     if (!scrollEl) return;
 
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    const xInTimeline = event.clientX - rect.left + scrollEl.scrollLeft - this.workCenterColumnWidth;
+    const xInTimeline = this.clientXToTimelineX(event.clientX, scrollEl);
     const clickDate = positionToDate(
       xInTimeline,
       this.columnConfig.timelineStartDate,
@@ -161,52 +161,143 @@ export class TimelineComponent implements OnInit, OnDestroy {
     setTimeout(() => this.scrollToToday(), 100);
   }
 
-  onRowHover(event: MouseEvent | null, centerId: string | null): void {
+  // ---------------------------------------------------------------------------
+  // Hover Button Orchestration
+  // ---------------------------------------------------------------------------
+
+  onRowHover(event: MouseEvent, centerId: string): void {
     this.hoveredRowId = centerId;
-    if (event && centerId) {
-      this.updateHoverButton(event, centerId);
-    } else {
-      this.clearHoverButton();
+    this.hoveredWorkCenterId = centerId;
+    this.updateHoverButtonPosition(event, centerId);
+  }
+
+  onRowMouseLeave(event: MouseEvent): void {
+    const relatedTarget = event.relatedTarget as HTMLElement | null;
+    if (relatedTarget?.closest('app-timeline-hover-button')) {
+      return;
     }
+    this.clearHoverState();
+  }
+
+  onHoverButtonLeave(event: MouseEvent): void {
+    const relatedTarget = event.relatedTarget as HTMLElement | null;
+    if (relatedTarget?.closest('.timeline-row')) {
+      return;
+    }
+    this.clearHoverState();
+  }
+
+  private clearHoverState(): void {
+    this.hoveredRowId = null;
+    this.hoveredWorkCenterId = null;
+    this.hoverButtonPosition = null;
   }
 
   onRowMouseMove(event: MouseEvent, centerId: string): void {
     const scrollEl = this.timelineScroll?.nativeElement;
     if (!scrollEl || this.hoveredRowId !== centerId) return;
 
+    // If button exists and cursor is near it, don't hide it
     if (this.hoverButtonPosition) {
-      const shouldClear = !this.isOverEmptySpace(event, centerId, scrollEl);
-      if (shouldClear) this.clearHoverButton();
+      if (!this.isCursorOutsideButtonBounds(event, this.hoverButtonPosition)) {
+        return;
+      }
+    }
+
+    // Check if we should show or hide the button
+    const shouldShow = this.shouldShowHoverButton(event, centerId, scrollEl);
+
+    if (shouldShow) {
+      this.updateHoverButtonPosition(event, centerId);
     } else {
-      this.updateHoverButton(event, centerId);
+      this.hoverButtonPosition = null;
     }
   }
 
-  private updateHoverButton(event: MouseEvent, centerId: string): void {
+  onHoverButtonClick(position: { x: number; y: number }): void {
+    const scrollEl = this.timelineScroll?.nativeElement;
+    if (!scrollEl || !this.hoveredWorkCenterId) return;
+
+    const xInTimeline = this.clientXToTimelineX(position.x, scrollEl);
+    const clickDate = positionToDate(
+      xInTimeline,
+      this.columnConfig.timelineStartDate,
+      this.columnConfig.timelineEndDate,
+      this.totalTimelineWidth
+    );
+
+    this.openCreatePanel(this.hoveredWorkCenterId, clickDate);
+    this.hoverButtonPosition = null;
+  }
+
+  private shouldShowHoverButton(event: MouseEvent, centerId: string, scrollEl: HTMLDivElement): boolean {
+    if (this.isOverWorkCenterColumn(event)) {
+      return false;
+    }
+
+    if (this.isOverOrderBar(event)) {
+      return false;
+    }
+
+    const xInTimeline = this.clientXToTimelineX(event.clientX, scrollEl);
+    const orders = this.getOrdersForCenter(centerId);
+    const bars = orders.map(order => this.calcBarStyle(order));
+
+    return this.isOverEmptySpace(xInTimeline, bars);
+  }
+
+  private updateHoverButtonPosition(event: MouseEvent, centerId: string): void {
     const scrollEl = this.timelineScroll?.nativeElement;
     if (!scrollEl) return;
 
-    if (this.isOverEmptySpace(event, centerId, scrollEl)) {
+    if (this.shouldShowHoverButton(event, centerId, scrollEl)) {
       const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
       this.hoverButtonPosition = {
         x: event.clientX,
         y: rect.top + rect.height / 2
       };
-      setTimeout(() => this.hoverButtonTooltip?.open(), 0);
+    } else {
+      this.hoverButtonPosition = null;
     }
   }
 
-  private clearHoverButton(): void {
-    this.hoverButtonPosition = null;
-    this.hoverButtonTooltip?.close();
+  // ---------------------------------------------------------------------------
+  // Hover Detection Helpers (inlined from service — no shared state needed)
+  // ---------------------------------------------------------------------------
+
+  private isOverWorkCenterColumn(event: MouseEvent): boolean {
+    const target = event.target as HTMLElement;
+    if (target.closest('.work-center-cell') !== null) {
+      return true;
+    }
+    // On mouseenter, target is the <tr> so the DOM check above fails.
+    // Use the scroll wrapper rect which is stable regardless of scroll position.
+    const scrollEl = this.timelineScroll?.nativeElement;
+    if (!scrollEl) return false;
+    const scrollRect = scrollEl.getBoundingClientRect();
+    return event.clientX < scrollRect.left + this.workCenterColumnWidth;
   }
 
-  private isOverEmptySpace(event: MouseEvent, centerId: string, scrollEl: HTMLDivElement): boolean {
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    const xInTimeline = event.clientX - rect.left + scrollEl.scrollLeft - this.workCenterColumnWidth;
-    const orders = this.getOrdersForCenter(centerId);
-    const bars = orders.map(order => this.calcBarStyle(order));
-    return !bars.some(bar => xInTimeline >= bar.left && xInTimeline <= bar.left + bar.width);
+  private isOverOrderBar(event: MouseEvent): boolean {
+    const target = event.target as HTMLElement;
+    return target.closest('app-work-order-bar') !== null ||
+           target.closest('.work-order-bar') !== null;
+  }
+
+  private isOverEmptySpace(xPosition: number, bars: Array<{ left: number; width: number }>): boolean {
+    return !bars.some(bar => xPosition >= bar.left && xPosition <= bar.left + bar.width);
+  }
+
+  private isCursorOutsideButtonBounds(event: MouseEvent, buttonPosition: { x: number; y: number }): boolean {
+    const distanceX = Math.abs(event.clientX - buttonPosition.x);
+    const distanceY = Math.abs(event.clientY - buttonPosition.y);
+    return distanceX > (this.hoverButtonBounds.width / 2 + this.hoverButtonBounds.margin) ||
+           distanceY > (this.hoverButtonBounds.height / 2 + this.hoverButtonBounds.margin);
+  }
+
+  private clientXToTimelineX(clientX: number, scrollEl: HTMLDivElement): number {
+    const scrollRect = scrollEl.getBoundingClientRect();
+    return clientX - scrollRect.left - this.workCenterColumnWidth + scrollEl.scrollLeft;
   }
 
 

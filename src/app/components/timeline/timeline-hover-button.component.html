@@ -1,0 +1,20 @@
+<button
+  *ngIf="position"
+  class="hover-add-button"
+  [style.left.px]="position.x"
+  [style.top.px]="position.y"
+  [ngbTooltip]="addNewDatesTooltip"
+  placement="top"
+  triggers="manual"
+  #hoverButtonTooltip="ngbTooltip"
+  (click)="onClick()"
+  (mouseleave)="onMouseLeave($event)"
+>
+  +
+</button>
+
+<ng-template #addNewDatesTooltip>
+  <div class="add-new-dates-tooltip">
+    <span>Click to add dates</span>
+  </div>
+</ng-template>
