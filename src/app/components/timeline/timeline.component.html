@@ -15,7 +15,6 @@
           <th
             *ngFor="let col of columns; trackBy: trackByColumn"
             class="column-header"
-            [class.current-period]="isCurrentPeriod(col)"
             [style.width.px]="columnWidth"
           >
             <span>{{ col.label }}</span>

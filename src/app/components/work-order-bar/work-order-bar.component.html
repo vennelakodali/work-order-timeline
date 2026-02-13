@@ -9,12 +9,14 @@
   (click)="onBarClick()"
   (mouseenter)="onMouseEnter()"
   (mouseleave)="onMouseLeave()"
+  [ngbTooltip]="barTooltip"
 >
   <!-- Work order name -->
-  <span class="bar-name" [title]="order.data.name" [ngbTooltip]="barTooltip" container="body">{{ order.data.name }}</span>
+  <span class="bar-name" [title]="order.data.name">{{ order.data.name }}</span>
 
   <!-- Status pill -->
   <app-pill
+    *ngIf="widthPx > 100"
     [text]="pillConfig.label"
     [textColor]="pillConfig.textColor"
     [bgColor]="pillConfig.bgColor"

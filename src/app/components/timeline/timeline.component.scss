@@ -80,17 +80,14 @@
   font-size: 14px;
   font-weight: 500;
   color: var(--text-secondary);
-  border-bottom: 1px solid var(--stroke);
-  border-right: 1px solid var(--stroke);
+  border-bottom: 1px solid var(--separator-border);
   text-align: center;
   vertical-align: middle;
   user-select: none;
   background: var(--bg-light);
 
-  &.current-period {
-    background: var(--primary-bg);
-    color: var(--primary);
-    font-weight: 600;
+  &:last-of-type {
+    border-right: 1px solid var(--separator-border);
   }
 }
 
@@ -131,14 +128,14 @@
   cursor: pointer;
   transition: background 0.15s;
   position: relative;
+  background: var(--bg-table-body);
 }
 
 .column-cell {
   height: var(--row-height);
   min-height: var(--row-height);
   max-height: var(--row-height);
-  border-bottom: 1px solid var(--stroke);
-  border-right: 1px solid var(--stroke);
+  border-right: 1px solid var(--separator-border);
   position: relative;
   vertical-align: middle;
 
@@ -150,6 +147,7 @@
 .filler-row {
   height: 100%;
   cursor: default;
+  background: var(--bg-table-body);
 
   .filler-cell {
     height: auto;

@@ -137,31 +137,44 @@
     }
   }
 
-  // ---- Tooltip ----
-  .bar-tooltip {
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 12px;
-    background: var(--bg-light-secondary);
-    color: var(--text-secondary);
-    font-size: 13px;
-    padding: 8px 12px;
-    border-radius: 5px;
-    box-shadow: var(--shadow-md);
-    z-index: 60;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    white-space: nowrap;
-    pointer-events: none;
+}
 
-    strong {
-      font-weight: 600;
-      font-size: 12px;
-    }
+// ---- Tooltip ----
+.bar-tooltip {
+  background: var(--text-secondary);
+  color: var(--text-tooltip);
+  font-size: 14px;
+  font-weight: 400;
+  padding: 4px 8px;
+  border-radius: 8px;
+  box-shadow: var(--shadow-tooltip);
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  white-space: nowrap;
 
-    span {
-      opacity: 0.8;
-    }
+  strong {
+    font-weight: 600;
+    font-size: 12px;
   }
+
+  div {
+    opacity: 0.8;
+  }
+}
+
+// ---- NgbTooltip overrides ----
+:host ::ng-deep .tooltip-arrow {
+  display: none !important;
+}
+
+:host ::ng-deep .tooltip-inner {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+:host ::ng-deep .tooltip {
+  border: none !important;
 }
