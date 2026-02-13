@@ -20,11 +20,8 @@ export class WorkOrderBarComponent {
 
   @Output() edit = new EventEmitter<WorkOrderDocument>();
   @Output() delete = new EventEmitter<string>();
-  @Output() barClick = new EventEmitter<WorkOrderDocument>();
 
   @ViewChild('actionsDropdown') actionsDropdown?: DropdownComponent;
-
-  isHovered = false;
 
   get config(): StatusConfig {
     return WORK_ORDER_BAR_CONFIG.find(s => s.value === this.order.data.status) || WORK_ORDER_BAR_CONFIG[0];
@@ -32,10 +29,6 @@ export class WorkOrderBarComponent {
 
   get pillConfig(): StatusConfig {
     return STATUS_PILL_CONFIG.find(s => s.value === this.order.data.status) || STATUS_PILL_CONFIG[0];
-  }
-
-  onBarClick(): void {
-    this.barClick.emit(this.order);
   }
 
   onEdit(event: MouseEvent): void {
@@ -48,24 +41,5 @@ export class WorkOrderBarComponent {
     event.stopPropagation();
     this.actionsDropdown?.close();
     this.delete.emit(this.order.docId);
-  }
-
-  onMouseEnter(): void {
-    this.isHovered = true;
-  }
-
-  onMouseLeave(): void {
-    // Don't hide if dropdown is open - user may be interacting with the menu
-    if (this.actionsDropdown?.isOpen) {
-      return;
-    }
-    this.isHovered = false;
-  }
-
-  onDropdownClosed(): void {
-    // When dropdown closes, check if we should also unhover
-    if (!this.isHovered) {
-      return;
-    }
   }
 }

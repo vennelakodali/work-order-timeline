@@ -22,6 +22,11 @@
         </tr>
       </thead>
       <tbody>
+        <!-- extra row to appease space concerns so as to not add exceptions for all downstream stylings -->
+        <tr class="extra-row-for-spacing timeline-row">
+          <td class="work-center-cell"></td>
+         <td *ngFor="let col of columns" class="column-cell"></td>
+        </tr>
         <tr
           *ngFor="let center of workCenters; trackBy: trackByCenter; let isFirst = first"
           class="timeline-row"
@@ -39,7 +44,6 @@
             class="column-cell"
             [class.current-period]="isCurrentPeriod(col)"
             [style.width.px]="columnWidth"
-            (click)="onTimelineClick($event, center.docId)"
           >
             <!-- Current period pill (only in first row, month view only) -->
             <app-pill
@@ -56,7 +60,7 @@
                 [order]="order"
                 [leftPx]="calcBarStyle(order).left"
                 [widthPx]="calcBarStyle(order).width"
-                (barClick)="openEditPanel($event)"
+                (click)="openEditPanel(order)"
                 (edit)="onEditOrder($event)"
                 (delete)="onDeleteOrder($event)"
               />

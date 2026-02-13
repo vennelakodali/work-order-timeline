@@ -125,25 +125,6 @@ export class TimelineComponent implements OnInit, OnDestroy {
   // Interactions
   // ---------------------------------------------------------------------------
 
-  onTimelineClick(event: MouseEvent, workCenterId: string): void {
-    if ((event.target as HTMLElement).closest('app-work-order-bar, .dropdown-container')) {
-      return;
-    }
-
-    const scrollEl = this.timelineScroll?.nativeElement;
-    if (!scrollEl) return;
-
-    const xInTimeline = this.clientXToTimelineX(event.clientX, scrollEl);
-    const clickDate = positionToDate(
-      xInTimeline,
-      this.columnConfig.timelineStartDate,
-      this.columnConfig.timelineEndDate,
-      this.totalTimelineWidth
-    );
-
-    this.openCreatePanel(workCenterId, clickDate);
-  }
-
   onTimescaleChange(level: string): void {
     this.timescale = level;
     this.regenerateColumns();
@@ -205,9 +186,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
     }
 
     // Check if we should show or hide the button
-    const shouldShow = this.shouldShowHoverButton(event, centerId, scrollEl);
-
-    if (shouldShow) {
+    if (this.shouldShowHoverButton(event, centerId, scrollEl)) {
       this.updateHoverButtonPosition(event, centerId);
     } else {
       this.hoverButtonPosition = null;
@@ -226,7 +205,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
       this.totalTimelineWidth
     );
 
-    this.openCreatePanel(this.hoveredWorkCenterId, clickDate);
+    this.openPanel('create', this.hoveredWorkCenterId, clickDate, null);
     this.hoverButtonPosition = null;
   }
 
@@ -262,7 +241,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
   }
 
   // ---------------------------------------------------------------------------
-  // Hover Detection Helpers (inlined from service — no shared state needed)
+  // Hover Detection Helpers
   // ---------------------------------------------------------------------------
 
   private isOverWorkCenterColumn(event: MouseEvent): boolean {
@@ -281,7 +260,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
   private isOverOrderBar(event: MouseEvent): boolean {
     const target = event.target as HTMLElement;
     return target.closest('app-work-order-bar') !== null ||
-           target.closest('.work-order-bar') !== null;
+      target.closest('.work-order-bar') !== null;
   }
 
   private isOverEmptySpace(xPosition: number, bars: Array<{ left: number; width: number }>): boolean {
@@ -292,7 +271,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
     const distanceX = Math.abs(event.clientX - buttonPosition.x);
     const distanceY = Math.abs(event.clientY - buttonPosition.y);
     return distanceX > (this.hoverButtonBounds.width / 2 + this.hoverButtonBounds.margin) ||
-           distanceY > (this.hoverButtonBounds.height / 2 + this.hoverButtonBounds.margin);
+      distanceY > (this.hoverButtonBounds.height / 2 + this.hoverButtonBounds.margin);
   }
 
   private clientXToTimelineX(clientX: number, scrollEl: HTMLDivElement): number {
@@ -305,20 +284,17 @@ export class TimelineComponent implements OnInit, OnDestroy {
   // Panel Operations
   // ---------------------------------------------------------------------------
 
-  openCreatePanel(workCenterId: string, startDate: string): void {
-    this.openPanel('create', workCenterId, startDate, null);
-  }
-
-  openEditPanel(order: WorkOrderDocument): void {
-    this.openPanel('edit', order.data.workCenterId, order.data.startDate, order);
-  }
-
   onPanelClose(): void {
     this.closePanel();
   }
 
   onPanelSave(): void {
     this.closePanel();
+  }
+
+  openEditPanel(order:WorkOrderDocument): void {
+    console.log({order})
+    this.openPanel('edit', order.data.workCenterId, order.data.startDate, order)
   }
 
   private openPanel(mode: PanelMode, workCenterId: string, startDate: string, order: WorkOrderDocument | null): void {
@@ -339,7 +315,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
   }
 
   onEditOrder(order: WorkOrderDocument): void {
-    this.openEditPanel(order);
+    this.openPanel('edit', order.data.workCenterId, order.data.startDate, order);
   }
 
   // ---------------------------------------------------------------------------

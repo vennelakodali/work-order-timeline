@@ -4,6 +4,8 @@
 
 :host {
   z-index: 3;
+  position: relative;
+  top: calc(var(--row-height) - 66px);
 
   &:has(.hovered) {
     z-index: 4;
@@ -45,12 +47,6 @@
   &.status-blocked {
     background: var(--status-blocked-bar-bg);
     border-color: var(--status-blocked-bar-border);
-  }
-
-  &:hover,
-  &.hovered {
-    box-shadow: var(--shadow-sm);
-    filter: brightness(0.97);
   }
 
   .bar-name {
