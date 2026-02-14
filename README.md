@@ -1,7 +1,5 @@
 # Work Order Schedule Timeline
 
-An interactive timeline component for a manufacturing ERP system, built with Angular 19. It allows users to visualize, create, and edit work orders across multiple work centers.
-
 ## Quick Start
 
 ```bash
@@ -12,7 +10,7 @@ npm install
 ng serve
 ```
 
-Navigate to `http://localhost:4200/`. The application will auto-reload on source changes.
+Navigate to `http://localhost:4200/`
 
 ## Tech Stack
 
@@ -118,6 +116,7 @@ src/app/
 - Form validation is in place, with an error message, no extensive UI styling for errors. 
 - The Sketch design shows the form field order as: Work Order Name, Status, End date, Start date (end date appears before start date). This was followed to match the design, even though the spec document lists them in a different order.
 - The sketch design shows 'hour' granularity in the timescale as opposed to the design doc. I decided to match the skectch design.
+- No localization added (except for date picker), all strings are hardcoded
 
 ## AI Prompts
 
