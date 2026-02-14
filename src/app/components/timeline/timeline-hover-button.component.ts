@@ -10,16 +10,16 @@ import { NgbTooltipModule, NgbTooltip } from '@ng-bootstrap/ng-bootstrap';
   styleUrls: ['./timeline-hover-button.component.scss']
 })
 export class TimelineHoverButtonComponent implements OnChanges, OnDestroy {
-  @ViewChild('hoverButtonTooltip') hoverButtonTooltip?: NgbTooltip;
+  @ViewChild('hoverButtonTooltip') public hoverButtonTooltip?: NgbTooltip;
 
-  @Input() position: { x: number; y: number } | null = null;
-  @Output() buttonClick = new EventEmitter<{ x: number; y: number }>();
-  @Output() leave = new EventEmitter<MouseEvent>();
+  @Input() public position: { x: number; y: number } | null = null;
+  @Output() public buttonClick = new EventEmitter<{ x: number; y: number }>();
+  @Output() public leave = new EventEmitter<MouseEvent>();
 
   private tooltipTimeout?: ReturnType<typeof setTimeout>;
   private isTooltipOpen = false;
 
-  ngOnChanges(changes: SimpleChanges): void {
+  public ngOnChanges(changes: SimpleChanges): void {
     if (changes['position']) {
       const curr = changes['position'].currentValue;
 
@@ -32,17 +32,17 @@ export class TimelineHoverButtonComponent implements OnChanges, OnDestroy {
     }
   }
 
-  onClick(): void {
+  public onClick(): void {
     if (this.position) {
       this.buttonClick.emit(this.position);
     }
   }
 
-  onMouseLeave(event: MouseEvent): void {
+  public onMouseLeave(event: MouseEvent): void {
     this.leave.emit(event);
   }
 
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
     this.clearTooltipTimeout();
     this.closeTooltip();
   }

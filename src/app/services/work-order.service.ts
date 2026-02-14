@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { WorkCenterDocument } from '../models/work-center.model';
 import { WorkOrderDocument } from '../models/work-order.model';
-import { checkOverlap } from '../components/timeline/utils/overlap-detection';
 import { createSampleData } from '../data/sample-data';
+import { checkOverlap } from '../utils/overlap-detection';
 
 /**
  * Service managing work centers and work orders.
@@ -17,7 +17,7 @@ export class WorkOrderService {
   private workCentersSubject = new BehaviorSubject<WorkCenterDocument[]>([]);
   private workOrdersSubject = new BehaviorSubject<WorkOrderDocument[]>([]);
 
-  constructor() {
+  public constructor() {
     this.loadFromStorage();
   }
 
@@ -53,11 +53,11 @@ export class WorkOrderService {
   // Read Operations
   // ---------------------------------------------------------------------------
 
-  getWorkCenters$(): Observable<WorkCenterDocument[]> {
+  public getWorkCenters$(): Observable<WorkCenterDocument[]> {
     return this.workCentersSubject.asObservable();
   }
 
-  getWorkOrders$(): Observable<WorkOrderDocument[]> {
+  public getWorkOrders$(): Observable<WorkOrderDocument[]> {
     return this.workOrdersSubject.asObservable();
   }
 
@@ -73,7 +73,7 @@ export class WorkOrderService {
    * Create a new work order after validating no overlaps exist.
    * @returns error message string if overlap detected, or null on success.
    */
-  createWorkOrder(data: WorkOrderDocument['data']): string | null {
+  public createWorkOrder(data: WorkOrderDocument['data']): string | null {
     const existingOrders = this.getOrdersByWorkCenter(data.workCenterId);
     const overlapError = checkOverlap(existingOrders, data.startDate, data.endDate);
     if (overlapError) return overlapError;
@@ -94,7 +94,7 @@ export class WorkOrderService {
    * Update an existing work order after validating no overlaps.
    * @returns error message string if overlap detected, or null on success.
    */
-  updateWorkOrder(docId: string, data: WorkOrderDocument['data']): string | null {
+  public updateWorkOrder(docId: string, data: WorkOrderDocument['data']): string | null {
     const existingOrders = this.getOrdersByWorkCenter(data.workCenterId);
     const overlapError = checkOverlap(existingOrders, data.startDate, data.endDate, docId);
     if (overlapError) return overlapError;
@@ -107,7 +107,7 @@ export class WorkOrderService {
     return null;
   }
 
-  deleteWorkOrder(docId: string): void {
+  public deleteWorkOrder(docId: string): void {
     const orders = this.workOrdersSubject.value.filter(wo => wo.docId !== docId);
     this.workOrdersSubject.next(orders);
     this.saveToStorage();

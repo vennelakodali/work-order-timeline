@@ -30,19 +30,18 @@ import { STATUS_PILL_CONFIG } from '../../constants/status-config';
   ]
 })
 export class SlidePanelComponent implements OnInit {
-  @Input() mode: PanelMode = 'create';
-  @Input() workCenterId = '';
-  @Input() startDate = '';
-  @Input() editingOrder: WorkOrderDocument | null = null;
+  @Input() public workCenterId = '';
+  @Input(({ required: true })) public startDate!: string;
+  @Input() public editingOrder: WorkOrderDocument | null = null;
 
-  @Output() close = new EventEmitter<void>();
-  @Output() saved = new EventEmitter<void>();
+  @Output() public close = new EventEmitter<void>();
+  @Output() public saved = new EventEmitter<void>();
 
-  form!: FormGroup;
-  overlapError: string | null = null;
-  isLeaving = false;
+  public form!: FormGroup;
+  public overlapError: string | null = null;
+  public isLeaving = false;
 
-  statusOptions = STATUS_PILL_CONFIG.map(s => ({
+  public statusOptions = STATUS_PILL_CONFIG.map(s => ({
     value: s.value,
     label: s.label,
     textColor: s.textColor,
@@ -50,25 +49,25 @@ export class SlidePanelComponent implements OnInit {
     borderColor: s.borderColor
   }));
 
-  readonly formatDate = formatNgbDate;
+  public readonly formatDate = formatNgbDate;
 
   constructor(
     private workOrderService: WorkOrderService,
     private cdr: ChangeDetectorRef
   ) { }
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.initForm();
   }
 
   @HostListener('document:keydown', ['$event'])
-  onKeydown(event: KeyboardEvent): void {
+  public onKeydown(event: KeyboardEvent): void {
     if (event.key === 'Escape') {
       this.onCancel();
     }
   }
 
-  onAnimationDone(event: any): void {
+  public onAnimationDone(event: any): void {
     // After leave animation completes, emit close event
     if (this.isLeaving && event.toState === 'void') {
       this.close.emit();
@@ -76,30 +75,18 @@ export class SlidePanelComponent implements OnInit {
   }
 
   private initForm(): void {
-    if (this.mode === 'edit' && this.editingOrder) {
-      const order = this.editingOrder;
-      this.form = new FormGroup({
-        name: new FormControl(order.data.name, [Validators.required]),
-        status: new FormControl(order.data.status, [Validators.required]),
-        endDate: new FormControl(isoToNgbDate(order.data.endDate), [Validators.required]),
-        startDate: new FormControl(isoToNgbDate(order.data.startDate), [Validators.required])
-      }, { validators: this.dateRangeValidator });
-    } else {
-      const start = this.startDate || new Date().toISOString().split('T')[0];
-      const endDate = new Date(start);
-      endDate.setDate(endDate.getDate() + 7);
-      const end = endDate.toISOString().split('T')[0];
+    const startRaw = this.editingOrder ? this.editingOrder?.data.startDate : (this.startDate || new Date().toISOString().split('T')[0]);
+    const endRaw = this.editingOrder ? this.editingOrder?.data.endDate : this.addDays(startRaw, 7);
 
-      this.form = new FormGroup({
-        name: new FormControl('', [Validators.required]),
-        status: new FormControl('open' as WorkOrderStatus, [Validators.required]),
-        endDate: new FormControl(isoToNgbDate(end), [Validators.required]),
-        startDate: new FormControl(isoToNgbDate(start), [Validators.required])
-      }, { validators: this.dateRangeValidator });
-    }
+    this.form = new FormGroup({
+      name: new FormControl(this.editingOrder ? this.editingOrder.data.name : '', [Validators.required]),
+      status: new FormControl(this.editingOrder ? this.editingOrder.data.status : 'open', [Validators.required]),
+      startDate: new FormControl(isoToNgbDate(startRaw), [Validators.required]),
+      endDate: new FormControl(isoToNgbDate(endRaw), [Validators.required])
+    }, { validators: this.dateRangeValidator });
   }
 
-  dateRangeValidator = (group: AbstractControl): ValidationErrors | null => {
+  public dateRangeValidator = (group: AbstractControl): ValidationErrors | null => {
     const startVal = group.get('startDate')?.value;
     const endVal = group.get('endDate')?.value;
 
@@ -114,13 +101,13 @@ export class SlidePanelComponent implements OnInit {
     return null;
   };
 
-  onSubmit(): void {
+  public onSubmit(): void {
+    this.form.markAsTouched();
+    this.form.markAllAsTouched();
+
     if (this.form.invalid) {
-      this.form.markAllAsTouched();
       return;
     }
-
-    this.overlapError = null;
 
     const formValue = this.form.value;
     const data = {
@@ -133,7 +120,7 @@ export class SlidePanelComponent implements OnInit {
 
     let error: string | null;
 
-    if (this.mode === 'edit' && this.editingOrder) {
+    if (this.editingOrder) {
       error = this.workOrderService.updateWorkOrder(this.editingOrder.docId, data);
     } else {
       error = this.workOrderService.createWorkOrder(data);
@@ -150,8 +137,14 @@ export class SlidePanelComponent implements OnInit {
     this.saved.emit();
   }
 
-  onCancel(): void {
+  public onCancel(): void {
     this.isLeaving = true;
     this.cdr.markForCheck();
+  }
+
+  private addDays(isoDate: string, days: number): string {
+    const date = new Date(isoDate);
+    date.setDate(date.getDate() + days);
+    return date.toISOString().split('T')[0];
   }
 }

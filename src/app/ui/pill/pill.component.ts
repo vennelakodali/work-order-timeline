@@ -11,8 +11,8 @@ import { Component, Input } from '@angular/core';
   styleUrls: ['./pill.component.scss']
 })
 export class PillComponent {
-  @Input({ required: true }) text!: string;
-  @Input() textColor = 'var(--primary)';
-  @Input() bgColor = 'var(--primary-bg)';
-  @Input() borderColor = 'transparent';
+  @Input({ required: true }) public text!: string;
+  @Input() public textColor = 'var(--primary)';
+  @Input() public bgColor = 'var(--primary-bg)';
+  @Input() public borderColor = 'transparent';
 }

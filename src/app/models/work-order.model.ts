@@ -6,7 +6,7 @@ export type WorkOrderStatus = 'open' | 'in-progress' | 'complete' | 'blocked';
 /**
  * Work Order Document - represents a scheduled work order on a work center.
  */
-export interface WorkOrderDocument {
+export type WorkOrderDocument = {
   docId: string;
   docType: 'workOrder';
   data: {
@@ -27,7 +27,7 @@ export const TimescaleLevels = {
   'hour': 'Hour',
   'day': 'Day',
   'week': 'Week',
-  'month': 'Month'  
+  'month': 'Month'
 };
 
 /**
@@ -38,7 +38,7 @@ export type PanelMode = 'create' | 'edit';
 /**
  * Status display configuration - maps status to label and color tokens
  */
-export interface StatusConfig {
+export type StatusConfig = {
   value: WorkOrderStatus;
   label: string;
   textColor: string;

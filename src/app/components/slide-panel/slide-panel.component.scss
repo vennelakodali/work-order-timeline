@@ -95,11 +95,6 @@
   font-family: var(--font-family);
   font-size: 12px;
   color: #E53935;
-
-  svg {
-    flex-shrink: 0;
-    margin-top: 1px;
-  }
 }
 
 // ---- Date Input Wrapper ----
@@ -130,4 +125,3 @@
     border-radius: 5px !important;
   }
 }
-

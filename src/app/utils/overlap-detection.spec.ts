@@ -1,5 +1,5 @@
 import { checkOverlap } from './overlap-detection';
-import { WorkOrderDocument } from '../../../models/work-order.model';
+import { WorkOrderDocument } from '../models/work-order.model';
 
 describe('checkOverlap', () => {
   const mockOrders: WorkOrderDocument[] = [

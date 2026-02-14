@@ -1,129 +1,65 @@
-<!-- Slide-out Panel -->
-<div
-  class="slide-panel"
-  @slideIn
-  (@slideIn.done)="onAnimationDone($event)"
-  *ngIf="!isLeaving"
-  role="dialog"
-  aria-modal="true"
-  [attr.aria-label]="mode === 'edit' ? 'Edit work order' : 'Create new work order'"
->
-  <!-- Panel Header -->
-  <div class="panel-header">
+<div class="slide-panel" @slideIn (@slideIn.done)="onAnimationDone($event)" *ngIf="!isLeaving" role="dialog"
+  aria-modal="true" aria-labelledby="panel-title" aria-describedby="panel-subtitle">
+
+  <header class="panel-header">
     <div class="panel-title-group">
-      <h2 class="panel-title" id="panel-title">Work Order Details</h2>
-      <p class="panel-subtitle">Specify the dates, name and status for this order</p>
+      <h2 class="panel-title" id="panel-title">{{ editingOrder ? 'Edit' : 'New' }} Work Order</h2>
+      <p class="panel-subtitle" id="panel-subtitle">Specify the details for this order</p>
     </div>
     <div class="panel-actions">
-      <button class="btn-cancel" (click)="onCancel()" type="button" aria-label="Cancel and close panel">Cancel</button>
-      <button class="btn-primary" (click)="onSubmit()" type="button" [attr.aria-label]="mode === 'edit' ? 'Save changes to work order' : 'Create new work order'">
-        {{ mode === 'edit' ? 'Save' : 'Create' }}
+      <button class="btn-cancel" (click)="onCancel()" type="button" aria-label="Cancel and close">Cancel</button>
+      <button class="btn-primary" (click)="onSubmit()"
+        [attr.aria-label]="editingOrder ? 'Save changes' : 'Create work order'">
+        {{ editingOrder ? 'Save' : 'Create' }}
       </button>
     </div>
+  </header>
+
+  <div class="error-alert" *ngIf="form.touched && (form.invalid || overlapError)" role="alert" aria-live="assertive">
+    <span *ngIf="overlapError; else dateRangeError">
+      {{ overlapError }}
+    </span>
+
+    <ng-template #dateRangeError>
+      <span *ngIf="form.hasError('dateRange'); else genericError">
+        Please enter a valid date range
+      </span>
+    </ng-template>
+
+    <ng-template #genericError>
+      Form field validation error - all fields are required
+    </ng-template>
   </div>
 
-  <!-- Overlap Error Alert -->
-  <div class="error-alert" *ngIf="overlapError" role="alert" aria-live="assertive">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="#E53935" aria-hidden="true">
-      <path d="M8 1C4.13 1 1 4.13 1 8s3.13 7 7 7 7-3.13 7-7-3.13-7-7-7zm0 11a1 1 0 110-2 1 1 0 010 2zm1-4H7V4h2v4z"/>
-    </svg>
-    <span>{{ overlapError }}</span>
-  </div>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="work-order-form">
 
-  <!-- Form -->
-  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="work-order-form" aria-labelledby="panel-title">
-    <!-- Work Order Name -->
     <div class="form-group">
       <label class="form-label" for="wo-name">Work Order Name</label>
-      <input
-        id="wo-name"
-        type="text"
-        class="form-input"
-        formControlName="name"
-        placeholder="Enter work order name..."
-        [class.error]="form.get('name')?.invalid && form.get('name')?.touched"
-        aria-required="true"
-        [attr.aria-invalid]="form.get('name')?.invalid && form.get('name')?.touched"
-      />
+      <input id="wo-name" class="form-input" formControlName="name" aria-required="true"
+        [attr.aria-invalid]="form.get('name')?.invalid && form.get('name')?.touched" />
     </div>
 
-    <!-- Status (ng-select with pill-styled options) -->
     <div class="form-group">
       <label class="form-label" id="status-label">Status</label>
-      <ng-select
-        formControlName="status"
-        [items]="statusOptions"
-        aria-labelledby="status-label"
-        aria-required="true"
-        bindLabel="label"
-        bindValue="value"
-        [clearable]="false"
-        [searchable]="false"
-        placeholder="Select status"
-      >
+      <ng-select formControlName="status" [items]="statusOptions" [clearable]="false" [searchable]="false"
+        bindValue="value" aria-labelledby="status-label" aria-required="true">
         <ng-template ng-label-tmp let-item="item">
-          <app-pill [text]="item.label" [textColor]="item.textColor" [bgColor]="item.bgColor" [borderColor]="item.borderColor" />
-        </ng-template>
-        <ng-template ng-option-tmp let-item="item">
-          <span [attr.data-status]="item.value" class="dropdown-menu-item">{{ item.label }}</span>
+          <app-pill [text]="item.label" [textColor]="item.textColor" [bgColor]="item.bgColor" />
         </ng-template>
       </ng-select>
     </div>
 
-    <!-- End Date -->
-    <div class="form-group">
-      <label class="form-label" for="end-date-display">End date</label>
-      <div class="date-input-wrapper">
-        <input
-          id="end-date-display"
-          class="form-input date-display"
-          [value]="formatDate(form.get('endDate')?.value)"
-          readonly
-          placeholder="Select end date"
-          (click)="endDp.toggle()"
-          [class.error]="form.hasError('dateRange') && form.touched"
-          placement="bottom-start"
-          aria-label="End date picker"
-          aria-required="true"
-          [attr.aria-invalid]="form.hasError('dateRange') && form.touched"
-        />
-        <input
-          type="text"
-          class="date-hidden"
-          ngbDatepicker
-          #endDp="ngbDatepicker"
-          formControlName="endDate"
-          (dateSelect)="endDp.close()"
-        />
+    <ng-container *ngFor="let field of ['startDate', 'endDate']">
+      <div class="form-group">
+        <label class="form-label" [id]="field + '-label'">{{ field === 'startDate' ? 'Start' : 'End' }} Date</label>
+        <div class="date-input-wrapper" (click)="dp.toggle()" role="button" [attr.aria-labelledby]="field + '-label'">
+          <input class="form-input date-display" readonly [value]="formatDate(form.get(field)?.value)"
+            aria-readonly="true" [attr.aria-invalid]="form.hasError('dateRange') && form.touched" />
+          <input type="text" class="date-hidden" ngbDatepicker #dp="ngbDatepicker" [formControlName]="field"
+            aria-hidden="true" />
+        </div>
       </div>
-    </div>
+    </ng-container>
 
-    <!-- Start Date -->
-    <div class="form-group">
-      <label class="form-label" for="start-date-display">Start date</label>
-      <div class="date-input-wrapper">
-        <input
-          id="start-date-display"
-          class="form-input date-display"
-          [value]="formatDate(form.get('startDate')?.value)"
-          readonly
-          placeholder="Select start date"
-          (click)="startDp.toggle()"
-          [class.error]="form.hasError('dateRange') && form.touched"
-          placement="bottom-start"
-          aria-label="Start date picker"
-          aria-required="true"
-          [attr.aria-invalid]="form.hasError('dateRange') && form.touched"
-        />
-        <input
-          type="text"
-          class="date-hidden"
-          ngbDatepicker
-          #startDp="ngbDatepicker"
-          formControlName="startDate"
-          (dateSelect)="startDp.close()"
-        />
-      </div>
-    </div>
   </form>
 </div>

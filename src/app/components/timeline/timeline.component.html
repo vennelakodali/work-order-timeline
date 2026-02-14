@@ -32,7 +32,7 @@
         <tr
           *ngFor="let center of workCenters; trackBy: trackByCenter; let isFirst = first"
           class="timeline-row"
-          [class.hovered]="hoveredRowId === center.docId"
+          [class.hovered]="(hoveredRowId$ | async) === center.docId"
           (mouseenter)="onRowHover($event, center.docId)"
           (mouseleave)="onRowMouseLeave($event)"
           (mousemove)="onRowMouseMove($event, center.docId)"
@@ -64,7 +64,7 @@
                 [leftPx]="calcBarStyle(order).left"
                 [widthPx]="calcBarStyle(order).width"
                 (click)="openEditPanel(order)"
-                (edit)="onEditOrder($event)"
+                (edit)="openEditPanel($event)"
                 (delete)="onDeleteOrder($event)"
               />
             </ng-container>
@@ -90,7 +90,7 @@
 
     <!-- Hover Button for Rows with No Orders -->
     <app-timeline-hover-button
-      [position]="hoverButtonPosition"
+      [position]="hoverButtonPosition$ | async"
       (buttonClick)="onHoverButtonClick($event)"
       (leave)="onHoverButtonLeave($event)"
     />
@@ -98,20 +98,22 @@
 </div>
 
 <!-- Slide-out Panel for Create/Edit -->
-<app-slide-panel
-  *ngIf="panelOpen"
-  [mode]="panelMode"
-  [workCenterId]="panelWorkCenterId"
-  [startDate]="panelStartDate"
-  [editingOrder]="editingOrder"
-  (close)="onPanelCloseComplete()"
-  (saved)="onPanelSave()"
-/>
+<ng-container *ngIf="panelState$ | async as panelState">
+  <app-slide-panel
+    *ngIf="panelState.isOpen"
+    [mode]="panelState.mode"
+    [workCenterId]="panelState.workCenterId"
+    [startDate]="panelState.startDate"
+    [editingOrder]="panelState.editingOrder"
+    (close)="onPanelCloseComplete()"
+    (saved)="onPanelSave()"
+  />
 
-<!-- Backdrop overlay when panel is open -->
-<div
-  class="panel-backdrop"
-  *ngIf="panelOpen"
-  (click)="onPanelClose()"
-  @fadeIn
-></div>
+  <!-- Backdrop overlay when panel is open -->
+  <div
+    class="panel-backdrop"
+    *ngIf="panelState.isOpen"
+    (click)="onPanelClose()"
+    @fadeIn
+  ></div>
+</ng-container>

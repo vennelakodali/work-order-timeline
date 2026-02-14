@@ -17,16 +17,16 @@ import { TimescaleLevels } from '../../models/work-order.model';
   styleUrls: ['./timeline-header.component.scss']
 })
 export class TimelineHeaderComponent {
-  @Input({ required: true }) currentTimescale!: string;
-  @Output() timescaleChange = new EventEmitter<string>();
-  @Output() todayClick = new EventEmitter<void>();
+  @Input({ required: true }) public currentTimescale!: string;
+  @Output() public timescaleChange = new EventEmitter<string>();
+  @Output() public todayClick = new EventEmitter<void>();
 
-  readonly timescaleLevels = TimescaleLevels;
+  public readonly timescaleLevels = TimescaleLevels;
 
-  readonly timescaleOptions: { value: string; label: string }[] = Object.entries(TimescaleLevels)
+  public readonly timescaleOptions: { value: string; label: string }[] = Object.entries(TimescaleLevels)
     .map(([value, label]) => ({ value: label, label }));
 
-  getTimescaleDisplay(): string {
+  public getTimescaleDisplay(): string {
     return this.currentTimescale;
   }
 }

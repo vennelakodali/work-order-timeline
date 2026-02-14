@@ -1,10 +1,10 @@
-export interface TimelineColumn {
+export type TimelineColumn = {
   label: string;
   startDate: Date;
   endDate: Date;
 }
 
-export interface TimelineColumnConfig {
+export type TimelineColumnConfig = {
   columns: TimelineColumn[];
   columnWidth: number;
   timelineStartDate: Date;

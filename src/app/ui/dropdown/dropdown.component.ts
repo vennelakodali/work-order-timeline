@@ -14,16 +14,16 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./dropdown.component.scss']
 })
 export class DropdownComponent {
-  @Input() panelClass = '';
-  @Input() align: 'left' | 'right' = 'left';
-  @Input() autoCloseOthers = false;
+  @Input() public panelClass = '';
+  @Input() public align: 'left' | 'right' = 'left';
+  @Input() public autoCloseOthers = false;
 
-  isOpen = false;
+  public isOpen = false;
   private static currentOpenDropdown: DropdownComponent | null = null;
 
   constructor(private elRef: ElementRef) {}
 
-  toggle(event: MouseEvent): void {
+  public toggle(event: MouseEvent): void {
     event.stopPropagation();
     this.isOpen = !this.isOpen;
     if (this.autoCloseOthers && this.isOpen) {
@@ -35,7 +35,7 @@ export class DropdownComponent {
     }
   }
 
-  close(): void {
+  public close(): void {
     if (this.isOpen) {
       this.isOpen = false;
       if (this.autoCloseOthers && DropdownComponent.currentOpenDropdown === this) {
@@ -45,7 +45,7 @@ export class DropdownComponent {
   }
 
   @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
+  public onDocumentClick(event: MouseEvent): void {
     if (this.isOpen && !this.elRef.nativeElement.contains(event.target)) {
       this.close();
     }

@@ -15,30 +15,30 @@ import { WORK_ORDER_BAR_CONFIG, STATUS_PILL_CONFIG } from '../../constants/statu
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WorkOrderBarComponent {
-  @Input() order!: WorkOrderDocument;
-  @Input() leftPx = 0;
-  @Input() widthPx = 100;
+  @Input() public order!: WorkOrderDocument;
+  @Input() public leftPx = 0;
+  @Input() public widthPx = 100;
 
-  @Output() edit = new EventEmitter<WorkOrderDocument>();
-  @Output() delete = new EventEmitter<string>();
+  @Output() public edit = new EventEmitter<WorkOrderDocument>();
+  @Output() public delete = new EventEmitter<string>();
 
-  @ViewChild('actionsDropdown') actionsDropdown?: DropdownComponent;
+  @ViewChild('actionsDropdown') public actionsDropdown?: DropdownComponent;
 
-  get config(): StatusConfig {
+  public get config(): StatusConfig {
     return WORK_ORDER_BAR_CONFIG.find(s => s.value === this.order.data.status) || WORK_ORDER_BAR_CONFIG[0];
   }
 
-  get pillConfig(): StatusConfig {
+  public get pillConfig(): StatusConfig {
     return STATUS_PILL_CONFIG.find(s => s.value === this.order.data.status) || STATUS_PILL_CONFIG[0];
   }
 
-  onEdit(event: MouseEvent): void {
+  public onEdit(event: MouseEvent): void {
     event.stopPropagation();
     this.actionsDropdown?.close();
     this.edit.emit(this.order);
   }
 
-  onDelete(event: MouseEvent): void {
+  public onDelete(event: MouseEvent): void {
     event.stopPropagation();
     this.actionsDropdown?.close();
     this.delete.emit(this.order.docId);

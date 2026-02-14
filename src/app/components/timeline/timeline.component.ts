@@ -1,16 +1,18 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, Observable } from 'rxjs';
 import { WorkOrderService } from '../../services/work-order.service';
+import { TimelineCalculationService } from './services/timeline-calculation.service';
+import { TimelineStateService, TimelinePanelState } from './services/timeline-state.service';
+import { TimelineHoverService } from './services/timeline-hover.service';
 import { WorkCenterDocument } from '../../models/work-center.model';
-import { WorkOrderDocument, PanelMode, TimescaleLevels } from '../../models/work-order.model';
+import { WorkOrderDocument, TimescaleLevels } from '../../models/work-order.model';
 import { WorkOrderBarComponent } from '../work-order-bar/work-order-bar.component';
 import { SlidePanelComponent } from '../slide-panel/slide-panel.component';
 import { TimelineHeaderComponent } from '../timeline-header/timeline-header.component';
 import { TimelineHoverButtonComponent } from './timeline-hover-button.component';
 import { PillComponent } from '../../ui/pill/pill.component';
-import { generateTimelineColumns, TimelineColumn, TimelineColumnConfig } from './utils/timeline-columns';
-import { dateToPosition, positionToDate, getBarStyle } from './utils/timeline-positioning';
+import { TimelineColumn, TimelineColumnConfig } from './utils/timeline-columns';
 import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
@@ -30,39 +32,41 @@ import { trigger, transition, style, animate } from '@angular/animations';
   ]
 })
 export class TimelineComponent implements OnInit, OnDestroy {
-  @ViewChild('timelineScroll', { static: false }) timelineScroll!: ElementRef<HTMLDivElement>;
-  @ViewChild(SlidePanelComponent) slidePanel?: SlidePanelComponent;
+  @ViewChild('timelineScroll', { static: false }) public timelineScroll!: ElementRef<HTMLDivElement>;
+  @ViewChild(SlidePanelComponent) public slidePanel?: SlidePanelComponent;
 
-  workCenters: WorkCenterDocument[] = [];
-  workOrders: WorkOrderDocument[] = [];
+  public workCenters: WorkCenterDocument[] = [];
+  public workOrders: WorkOrderDocument[] = [];
 
-  timescale = TimescaleLevels.month;
-  columnConfig!: TimelineColumnConfig;
+  public timescale = TimescaleLevels.month;
+  public columnConfig!: TimelineColumnConfig;
+  public todayPosition = 0;
 
-  panelOpen = false;
-  panelMode: PanelMode = 'create';
-  panelWorkCenterId = '';
-  panelStartDate = '';
-  editingOrder: WorkOrderDocument | null = null;
+  public hoveredRowId$!: Observable<string | null>;
+  public hoverButtonPosition$!: Observable<{ x: number; y: number } | null>;
+  public panelState$!: Observable<TimelinePanelState>;
 
-  hoveredRowId: string | null = null;
-  hoverButtonPosition: { x: number; y: number } | null = null;
-  hoveredWorkCenterId: string | null = null;
-  todayPosition = 0;
+  private hoveredWorkCenterId: string | null = null;
 
-  readonly workCenterColumnWidth = 380; // Matches --panel-width in styles.scss
+  private readonly hoverButtonBounds = { width: 113, height: 38, margin: 20 }; // matches the hover button's styles
+  private readonly workCenterColumnWidth = 380; // Matches --panel-width in styles.scss
 
   private destroy$ = new Subject<void>();
   private today = new Date();
 
-  private readonly hoverButtonBounds = { width: 113, height: 38, margin: 20 };
-
   constructor(
     private workOrderService: WorkOrderService,
+    private timelineCalc: TimelineCalculationService,
+    private timelineState: TimelineStateService,
+    private hoverService: TimelineHoverService,
     private cdr: ChangeDetectorRef
   ) { }
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
+    this.hoveredRowId$ = this.timelineState.hoveredRowId$;
+    this.hoverButtonPosition$ = this.timelineState.hoverButtonPosition$;
+    this.panelState$ = this.timelineState.panelState$;
+
     this.workOrderService.getWorkCenters$()
       .pipe(takeUntil(this.destroy$))
       .subscribe(centers => {
@@ -82,7 +86,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
     this.deferredScrollToToday();
   }
 
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -91,41 +95,37 @@ export class TimelineComponent implements OnInit, OnDestroy {
   // Column & Position Calculations
   // ---------------------------------------------------------------------------
 
-  get columns() { return this.columnConfig.columns; }
-  get columnWidth() { return this.columnConfig.columnWidth; }
-  get totalTimelineWidth(): number { return this.columns.length * this.columnWidth; }
+  public get columns() { return this.columnConfig.columns; }
+  public get columnWidth() { return this.columnConfig.columnWidth; }
+  public get totalTimelineWidth(): number { return this.columns.length * this.columnWidth; }
 
-  regenerateColumns(): void {
-    this.columnConfig = generateTimelineColumns(this.timescale);
+  public regenerateColumns(): void {
+    this.columnConfig = this.timelineCalc.generateColumns(this.timescale);
     this.recalculateTodayPosition();
   }
 
   private recalculateTodayPosition(): void {
     if (!this.columnConfig) return;
-    const todayStr = new Date().toISOString().split('T')[0];
-    this.todayPosition = this.workCenterColumnWidth + dateToPosition(
-      todayStr,
-      this.columnConfig.timelineStartDate,
-      this.columnConfig.timelineEndDate,
-      this.totalTimelineWidth
+    this.todayPosition = this.timelineCalc.calculateTodayPosition(
+      this.columnConfig,
+      this.totalTimelineWidth,
+      this.workCenterColumnWidth
     );
   }
 
-  getOrdersForCenter(centerId: string): WorkOrderDocument[] {
+  public getOrdersForCenter(centerId: string): WorkOrderDocument[] {
     return this.workOrders.filter(wo => wo.data.workCenterId === centerId);
   }
 
-  calcBarStyle(order: WorkOrderDocument): { left: number; width: number } {
-    return getBarStyle(
-      order.data.startDate,
-      order.data.endDate,
-      this.columnConfig.timelineStartDate,
-      this.columnConfig.timelineEndDate,
+  public calcBarStyle(order: WorkOrderDocument): { left: number; width: number } {
+    return this.timelineCalc.calculateBarStyle(
+      order,
+      this.columnConfig,
       this.totalTimelineWidth
     );
   }
 
-  isCurrentPeriod(col: TimelineColumn): boolean {
+  public isCurrentPeriod(col: TimelineColumn): boolean {
     return this.today >= col.startDate && this.today < col.endDate;
   }
 
@@ -133,13 +133,13 @@ export class TimelineComponent implements OnInit, OnDestroy {
   // Interactions
   // ---------------------------------------------------------------------------
 
-  onTimescaleChange(level: string): void {
+  public onTimescaleChange(level: string): void {
     this.timescale = level;
     this.regenerateColumns();
     this.deferredScrollToToday();
   }
 
-  scrollToToday(): void {
+  public scrollToToday(): void {
     const scrollEl = this.timelineScroll?.nativeElement;
     if (!scrollEl) return;
     const viewportWidth = scrollEl.clientWidth;
@@ -154,41 +154,41 @@ export class TimelineComponent implements OnInit, OnDestroy {
   // Hover Button Orchestration
   // ---------------------------------------------------------------------------
 
-  onRowHover(event: MouseEvent, centerId: string): void {
-    this.hoveredRowId = centerId;
+  public onRowHover(event: MouseEvent, centerId: string): void {
     this.hoveredWorkCenterId = centerId;
     this.updateHoverButtonPosition(event, centerId);
   }
 
-  onRowMouseLeave(event: MouseEvent): void {
+  public onRowMouseLeave(event: MouseEvent): void {
     const relatedTarget = event.relatedTarget as HTMLElement | null;
     if (relatedTarget?.closest('app-timeline-hover-button')) {
       return;
     }
-    this.clearHoverState();
+    this.timelineState.clearHoverState();
   }
 
-  onHoverButtonLeave(event: MouseEvent): void {
+  public onHoverButtonLeave(event: MouseEvent): void {
     const relatedTarget = event.relatedTarget as HTMLElement | null;
     if (relatedTarget?.closest('.timeline-row')) {
       return;
     }
-    this.clearHoverState();
+    this.timelineState.clearHoverState();
   }
 
-  private clearHoverState(): void {
-    this.hoveredRowId = null;
-    this.hoveredWorkCenterId = null;
-    this.hoverButtonPosition = null;
-  }
-
-  onRowMouseMove(event: MouseEvent, centerId: string): void {
+  public onRowMouseMove(event: MouseEvent, centerId: string): void {
     const scrollEl = this.timelineScroll?.nativeElement;
-    if (!scrollEl || this.hoveredRowId !== centerId) return;
+    const currentHoverState = this.timelineState.currentHoverState;
+    if (!scrollEl || currentHoverState.rowId !== centerId) return;
 
     // If button exists and cursor is near it, don't hide it
-    if (this.hoverButtonPosition) {
-      if (!this.isCursorOutsideButtonBounds(event, this.hoverButtonPosition)) {
+    if (currentHoverState.buttonPosition) {
+      const isOutsideBounds = this.hoverService.isCursorOutsideButtonBounds(
+        event.clientX,
+        event.clientY,
+        currentHoverState.buttonPosition,
+        this.hoverButtonBounds
+      );
+      if (!isOutsideBounds) {
         return;
       }
     }
@@ -197,40 +197,46 @@ export class TimelineComponent implements OnInit, OnDestroy {
     if (this.shouldShowHoverButton(event, centerId, scrollEl)) {
       this.updateHoverButtonPosition(event, centerId);
     } else {
-      this.hoverButtonPosition = null;
+      this.timelineState.updateButtonPosition(null);
     }
   }
 
-  onHoverButtonClick(position: { x: number; y: number }): void {
+  public onHoverButtonClick(position: { x: number; y: number }): void {
     const scrollEl = this.timelineScroll?.nativeElement;
     if (!scrollEl || !this.hoveredWorkCenterId) return;
 
-    const xInTimeline = this.clientXToTimelineX(position.x, scrollEl);
-    const clickDate = positionToDate(
+    const scrollRect = scrollEl.getBoundingClientRect();
+    const xInTimeline = this.hoverService.clientXToTimelineX(
+      position.x,
+      scrollRect,
+      this.workCenterColumnWidth,
+      scrollEl.scrollLeft
+    );
+    const clickDate = this.timelineCalc.positionToDate(
       xInTimeline,
-      this.columnConfig.timelineStartDate,
-      this.columnConfig.timelineEndDate,
+      this.columnConfig,
       this.totalTimelineWidth
     );
 
-    this.openPanel('create', this.hoveredWorkCenterId, clickDate, null);
-    this.hoverButtonPosition = null;
+    this.timelineState.openPanel(this.hoveredWorkCenterId, clickDate, null);
+    this.timelineState.updateButtonPosition(null);
   }
 
   private shouldShowHoverButton(event: MouseEvent, centerId: string, scrollEl: HTMLDivElement): boolean {
-    if (this.isOverWorkCenterColumn(event)) {
-      return false;
-    }
+    const isOverWorkCenter = this.isOverWorkCenterColumn(event);
+    const isOverBar = this.isOverOrderBar(event);
 
-    if (this.isOverOrderBar(event)) {
-      return false;
-    }
-
-    const xInTimeline = this.clientXToTimelineX(event.clientX, scrollEl);
+    const scrollRect = scrollEl.getBoundingClientRect();
+    const xInTimeline = this.hoverService.clientXToTimelineX(
+      event.clientX,
+      scrollRect,
+      this.workCenterColumnWidth,
+      scrollEl.scrollLeft
+    );
     const orders = this.getOrdersForCenter(centerId);
     const bars = orders.map(order => this.calcBarStyle(order));
 
-    return this.isOverEmptySpace(xInTimeline, bars);
+    return this.hoverService.shouldShowHoverButton(isOverWorkCenter, isOverBar, xInTimeline, bars);
   }
 
   private updateHoverButtonPosition(event: MouseEvent, centerId: string): void {
@@ -239,12 +245,10 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
     if (this.shouldShowHoverButton(event, centerId, scrollEl)) {
       const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-      this.hoverButtonPosition = {
-        x: event.clientX,
-        y: rect.top + rect.height / 2
-      };
+      const position = this.hoverService.calculateButtonPosition(event, rect);
+      this.timelineState.setHoverState(centerId, centerId, position);
     } else {
-      this.hoverButtonPosition = null;
+      this.timelineState.updateButtonPosition(null);
     }
   }
 
@@ -271,71 +275,37 @@ export class TimelineComponent implements OnInit, OnDestroy {
       target.closest('.work-order-bar') !== null;
   }
 
-  private isOverEmptySpace(xPosition: number, bars: Array<{ left: number; width: number }>): boolean {
-    return !bars.some(bar => xPosition >= bar.left && xPosition <= bar.left + bar.width);
-  }
-
-  private isCursorOutsideButtonBounds(event: MouseEvent, buttonPosition: { x: number; y: number }): boolean {
-    const distanceX = Math.abs(event.clientX - buttonPosition.x);
-    const distanceY = Math.abs(event.clientY - buttonPosition.y);
-    return distanceX > (this.hoverButtonBounds.width / 2 + this.hoverButtonBounds.margin) ||
-      distanceY > (this.hoverButtonBounds.height / 2 + this.hoverButtonBounds.margin);
-  }
-
-  private clientXToTimelineX(clientX: number, scrollEl: HTMLDivElement): number {
-    const scrollRect = scrollEl.getBoundingClientRect();
-    return clientX - scrollRect.left - this.workCenterColumnWidth + scrollEl.scrollLeft;
-  }
-
-
   // ---------------------------------------------------------------------------
   // Panel Operations
   // ---------------------------------------------------------------------------
 
-  onPanelClose(): void {
+  public onPanelClose(): void {
     // Trigger slide panel's close animation, which will emit close event
     this.slidePanel?.onCancel();
   }
 
-  onPanelCloseComplete(): void {
-    // Called after slide panel animation completes
-    this.closePanel();
+  // Called after slide panel animation completes
+  public onPanelCloseComplete(): void {
+    this.timelineState.closePanel();
   }
 
-  onPanelSave(): void {
-    this.closePanel();
+  public onPanelSave(): void {
+    this.timelineState.closePanel();
   }
 
-  openEditPanel(order:WorkOrderDocument): void {
-    this.openPanel('edit', order.data.workCenterId, order.data.startDate, order)
+  public openEditPanel(order: WorkOrderDocument): void {
+    this.timelineState.openPanel(order.data.workCenterId, order.data.startDate, order);
   }
 
-  private openPanel(mode: PanelMode, workCenterId: string, startDate: string, order: WorkOrderDocument | null): void {
-    this.panelMode = mode;
-    this.panelWorkCenterId = workCenterId;
-    this.panelStartDate = startDate;
-    this.editingOrder = order;
-    this.panelOpen = true;
-  }
-
-  private closePanel(): void {
-    this.panelOpen = false;
-    this.editingOrder = null;
-  }
-
-  onDeleteOrder(orderId: string): void {
+  public onDeleteOrder(orderId: string): void {
     this.workOrderService.deleteWorkOrder(orderId);
-  }
-
-  onEditOrder(order: WorkOrderDocument): void {
-    this.openPanel('edit', order.data.workCenterId, order.data.startDate, order);
   }
 
   // ---------------------------------------------------------------------------
   // Track-by functions
   // ---------------------------------------------------------------------------
 
-  trackByCenter = (_: number, center: WorkCenterDocument) => center.docId;
-  trackByOrder = (_: number, order: WorkOrderDocument) => order.docId;
-  trackByColumn = (_: number, col: TimelineColumn) => col.label;
+  public trackByCenter = (_: number, center: WorkCenterDocument) => center.docId;
+  public trackByOrder = (_: number, order: WorkOrderDocument) => order.docId;
+  public trackByColumn = (_: number, col: TimelineColumn) => col.label;
 }
