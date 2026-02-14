@@ -307,7 +307,6 @@ export class TimelineComponent implements OnInit, OnDestroy {
   }
 
   openEditPanel(order:WorkOrderDocument): void {
-    console.log({order})
     this.openPanel('edit', order.data.workCenterId, order.data.startDate, order)
   }
 
