@@ -31,11 +31,6 @@ export const TimescaleLevels = {
 };
 
 /**
- * Panel mode for the slide-out create/edit panel
- */
-export type PanelMode = 'create' | 'edit';
-
-/**
  * Status display configuration - maps status to label and color tokens
  */
 export type StatusConfig = {

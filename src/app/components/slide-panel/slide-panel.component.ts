@@ -4,7 +4,7 @@ import { ReactiveFormsModule, FormGroup, FormControl, Validators, AbstractContro
 import { NgSelectModule } from '@ng-select/ng-select';
 import { NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { WorkOrderService } from '../../services/work-order.service';
-import { WorkOrderDocument, WorkOrderStatus, PanelMode } from '../../models/work-order.model';
+import { WorkOrderDocument, WorkOrderStatus } from '../../models/work-order.model';
 import { PillComponent } from '../../ui/pill/pill.component';
 import { isoToNgbDate, ngbDateToIso, ngbDateToDate, formatNgbDate } from '../../utils/date-conversions';
 import { trigger, transition, style, animate } from '@angular/animations';
@@ -125,8 +125,6 @@ export class SlidePanelComponent implements OnInit {
     } else {
       error = this.workOrderService.createWorkOrder(data);
     }
-
-    console.log({ error })
 
     if (error) {
       this.overlapError = error;

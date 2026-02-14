@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { WorkOrderDocument, PanelMode } from '../../../models/work-order.model';
+import { WorkOrderDocument } from '../../../models/work-order.model';
 
 export type TimelinePanelState = {
   isOpen: boolean;

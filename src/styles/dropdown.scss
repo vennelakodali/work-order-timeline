@@ -1,0 +1,93 @@
+// ============================================================================
+// Dropdown Styles (ng-select and ngb-datepicker)
+// ============================================================================
+
+// ---- ng-select overrides to match design ----
+.ng-select {
+  font-family: var(--font-family);
+
+  .ng-select-container {
+    border: 1px solid var(--stroke-dark);
+    border-radius: 8px;
+    min-height: 40px;
+    font-size: 14px;
+  }
+
+  &.ng-select-focused {
+    .ng-select-container {
+      border-color: var(--primary-light);
+    }
+  }
+
+  .ng-dropdown-panel {
+    border-radius: 5px;
+    box-shadow: var(--shadow-dropdown);
+    margin-top: 4px;
+
+
+    .ng-dropdown-panel-items {
+      padding: 12px 0;
+      border-radius: 5px;
+
+      .ng-option {
+        padding: 4px 12px;
+        font-size: 14px;
+        font-family: var(--font-family);
+        background: var(--bg-white) !important;
+        font-weight: 400;
+
+        &.ng-option-selected {
+          color: var(--primary);
+        }
+      }
+    }
+  }
+}
+
+
+// ---- ngb-datepicker overrides ----
+.ngb-dp-header {
+  background: var(--bg-white);
+}
+
+ngb-datepicker {
+  font-family: var(--font-family);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  top: 100% !important;
+
+
+  .ngb-dp-weekday {
+    color: var(--text-secondary);
+    font-size: 12px;
+  }
+
+  .ngb-dp-day {
+    .btn-light {
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+
+      &:hover {
+        background: var(--primary-bg);
+        color: var(--primary);
+      }
+
+      &.bg-primary {
+        background: var(--primary);
+        color: #fff;
+        border-radius: 50%;
+      }
+    }
+  }
+
+  .ngb-dp-navigation-chevron {
+    color: var(--text-primary);
+  }
+
+  ngb-datepicker-navigation-select+.dropdown-menu,
+  .ngb-dp-popup {
+    transform: none !important;
+    will-change: auto !important;
+  }
+}

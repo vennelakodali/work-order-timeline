@@ -10,6 +10,11 @@
   &:has(.hovered) {
     z-index: 4;
   }
+
+  // Elevate z-index when dropdown is open to ensure it appears above other bars
+  &:has(.dropdown-open) {
+    z-index: 101;
+  }
 }
 
 .work-order-bar {
@@ -150,19 +155,4 @@
   div {
     opacity: 0.8;
   }
-}
-
-// ---- NgbTooltip overrides ----
-:host ::ng-deep .tooltip-arrow {
-  display: none !important;
-}
-
-:host ::ng-deep .tooltip-inner {
-  border: none !important;
-  background: transparent !important;
-  padding: 0 !important;
-}
-
-:host ::ng-deep .tooltip {
-  border: none !important;
 }

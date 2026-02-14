@@ -1,4 +1,13 @@
-// ---- Design Tokens ----
+// ============================================================================
+// Third-party Component Overrides
+// ============================================================================
+@import 'styles/dropdown.scss';
+@import 'styles/tooltip.scss';
+@import 'styles/forms.scss';
+
+// ============================================================================
+// Design Tokens
+// ============================================================================
 :root {
   // Primary colors
   --primary: #5659FF;
@@ -99,97 +108,9 @@ body {
   line-height: 1.2;
 }
 
-// ---- ng-select overrides to match design ----
-.ng-select {
-  font-family: var(--font-family);
-
-  .ng-select-container {
-    border: 1px solid var(--stroke-dark);
-    border-radius: 8px;
-    min-height: 40px;
-    font-size: 14px;
-  }
-
-  &.ng-select-focused {
-    .ng-select-container {
-      border-color: var(--primary-light);
-    }
-  }
-
-  .ng-dropdown-panel {
-    border-radius: 5px;
-    box-shadow: var(--shadow-dropdown);
-    margin-top: 4px;
-
-
-    .ng-dropdown-panel-items {
-      padding: 12px 0;
-      border-radius: 5px;
-
-      .ng-option {
-        padding: 4px 12px;
-        font-size: 14px;
-        font-family: var(--font-family);
-        background: var(--bg-white) !important;
-        font-weight: 400;
-
-        &.ng-option-selected {
-          color: var(--primary);
-        }
-      }
-    }
-  }
-}
-
-
-// ---- ngb-datepicker overrides ----
-.ngb-dp-header {
-  background: var(--bg-white);
-}
-
-ngb-datepicker {
-  font-family: var(--font-family);
-  border-radius: 8px;
-  box-shadow: var(--shadow-md);
-  top: 100% !important;
-
-
-  .ngb-dp-weekday {
-    color: var(--text-secondary);
-    font-size: 12px;
-  }
-
-  .ngb-dp-day {
-    .btn-light {
-      border-radius: 50%;
-      width: 32px;
-      height: 32px;
-
-      &:hover {
-        background: var(--primary-bg);
-        color: var(--primary);
-      }
-
-      &.bg-primary {
-        background: var(--primary);
-        color: #fff;
-        border-radius: 50%;
-      }
-    }
-  }
-
-  .ngb-dp-navigation-chevron {
-    color: var(--text-primary);
-  }
-
-  ngb-datepicker-navigation-select+.dropdown-menu,
-  .ngb-dp-popup {
-    transform: none !important;
-    will-change: auto !important;
-  }
-}
-
-// ---- Scrollbar Styles ----
+// ============================================================================
+// Scrollbar Styles
+// ============================================================================
 ::-webkit-scrollbar {
   height: 6px;
   width: 6px;
@@ -206,45 +127,4 @@ ngb-datepicker {
   &:hover {
     background: var(--text-secondary);
   }
-}
-
-
-.work-order-form {
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .form-label {
-    font-family: var(--font-family);
-    font-weight: 500;
-    color: var(--text-secondary);
-    margin: 0;
-
-  }
-
-  .form-input {
-    width: 100%;
-    height: 40px;
-    padding: 0 12px;
-    border-radius: 5px;
-    font-family: var(--font-family);
-    font-size: 14px;
-    color: var(--text-primary);
-    background: var(--bg-white);
-    box-shadow: var(--shadow-input);
-    border: none;
-
-
-    &::placeholder {
-      color: var(--text-disabled);
-    }
-  }
-
 }

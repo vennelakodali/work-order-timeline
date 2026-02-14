@@ -1,11 +1,13 @@
 <div
   class="work-order-bar"
+  [class.dropdown-open]="actionsDropdown?.isOpen"
   [style.left.px]="barStyle.left"
   [style.width.px]="barStyle.width"
   [style.color]="config.textColor"
   [style.background]="config.bgColor"
   [style.borderColor]="config.borderColor"
   [ngbTooltip]="barTooltip"
+  container="body"
   role="button"
   tabindex="0"
   [attr.aria-label]="'Work order: ' + order.data.name + ', Status: ' + order.data.status + ', ' + order.data.startDate + ' to ' + order.data.endDate"

@@ -1,0 +1,21 @@
+// ============================================================================
+// NgbTooltip Styles
+// ============================================================================
+
+// Ensure tooltips appear above all other content (above slide panel at z-index 1000)
+.tooltip {
+  z-index: 1050;
+  border: none !important;
+}
+
+// Remove tooltip arrow
+.tooltip-arrow {
+  display: none !important;
+}
+
+// Remove default tooltip styling
+.tooltip-inner {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+}
