@@ -1,7 +1,7 @@
 <div
   class="work-order-bar"
-  [style.left.px]="leftPx"
-  [style.width.px]="widthPx"
+  [style.left.px]="barStyle.left"
+  [style.width.px]="barStyle.width"
   [style.color]="config.textColor"
   [style.background]="config.bgColor"
   [style.borderColor]="config.borderColor"
@@ -10,19 +10,16 @@
   tabindex="0"
   [attr.aria-label]="'Work order: ' + order.data.name + ', Status: ' + order.data.status + ', ' + order.data.startDate + ' to ' + order.data.endDate"
 >
-  <!-- Work order name -->
   <span class="bar-name" [title]="order.data.name">{{ order.data.name }}</span>
 
-  <!-- Status pill -->
   <app-pill
-    *ngIf="widthPx > 100"
+    *ngIf="barStyle.width > 100"
     [text]="pillConfig.label"
     [textColor]="pillConfig.textColor"
     [bgColor]="pillConfig.bgColor"
     [borderColor]="pillConfig.borderColor"
   />
 
-  <!-- Three-dot actions menu (always rendered, visible on hover) -->
   <app-dropdown align="right" [autoCloseOthers]="true" #actionsDropdown>
     <button trigger class="actions-btn" title="Actions" aria-label="Work order actions menu" aria-haspopup="true" [attr.aria-expanded]="actionsDropdown?.isOpen">
       <img src="assets/icons/hover.svg" alt="" class="actions-icon" aria-hidden="true" />

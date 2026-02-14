@@ -4,7 +4,12 @@ import { Subject, takeUntil, Observable } from 'rxjs';
 import { WorkOrderService } from '../../services/work-order.service';
 import { TimelineCalculationService } from './services/timeline-calculation.service';
 import { TimelineStateService, TimelinePanelState } from './services/timeline-state.service';
-import { TimelineHoverService } from './services/timeline-hover.service';
+import {
+  isValidHoverButtonPosition,
+  clientXToTimelineX,
+  isCursorOutsideButtonBounds,
+  calculateButtonPosition
+} from './utils/timeline-hover.utils';
 import { WorkCenterDocument } from '../../models/work-center.model';
 import { WorkOrderDocument, TimescaleLevels } from '../../models/work-order.model';
 import { WorkOrderBarComponent } from '../work-order-bar/work-order-bar.component';
@@ -58,7 +63,6 @@ export class TimelineComponent implements OnInit, OnDestroy {
     private workOrderService: WorkOrderService,
     private timelineCalc: TimelineCalculationService,
     private timelineState: TimelineStateService,
-    private hoverService: TimelineHoverService,
     private cdr: ChangeDetectorRef
   ) { }
 
@@ -117,16 +121,12 @@ export class TimelineComponent implements OnInit, OnDestroy {
     return this.workOrders.filter(wo => wo.data.workCenterId === centerId);
   }
 
-  public calcBarStyle(order: WorkOrderDocument): { left: number; width: number } {
-    return this.timelineCalc.calculateBarStyle(
-      order,
-      this.columnConfig,
-      this.totalTimelineWidth
-    );
+  public getOrderBarStyle(order: WorkOrderDocument): { left: number; width: number } {
+    return this.timelineCalc.calculateBarStyle(order, this.columnConfig, this.totalTimelineWidth);
   }
 
   public isCurrentPeriod(col: TimelineColumn): boolean {
-    return this.today >= col.startDate && this.today < col.endDate;
+    return this.timelineCalc.isDateInRange(this.today, col.startDate, col.endDate);
   }
 
   // ---------------------------------------------------------------------------
@@ -156,7 +156,12 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
   public onRowHover(event: MouseEvent, centerId: string): void {
     this.hoveredWorkCenterId = centerId;
-    this.updateHoverButtonPosition(event, centerId);
+    const scrollEl = this.timelineScroll?.nativeElement;
+    if (!scrollEl) return;
+
+    if (this.shouldShowHoverButton(event, centerId, scrollEl)) {
+      this.setHoverButtonPosition(event, centerId);
+    }
   }
 
   public onRowMouseLeave(event: MouseEvent): void {
@@ -182,7 +187,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
     // If button exists and cursor is near it, don't hide it
     if (currentHoverState.buttonPosition) {
-      const isOutsideBounds = this.hoverService.isCursorOutsideButtonBounds(
+      const isOutsideBounds = isCursorOutsideButtonBounds(
         event.clientX,
         event.clientY,
         currentHoverState.buttonPosition,
@@ -195,10 +200,16 @@ export class TimelineComponent implements OnInit, OnDestroy {
 
     // Check if we should show or hide the button
     if (this.shouldShowHoverButton(event, centerId, scrollEl)) {
-      this.updateHoverButtonPosition(event, centerId);
+      this.setHoverButtonPosition(event, centerId);
     } else {
       this.timelineState.updateButtonPosition(null);
     }
+  }
+
+  private setHoverButtonPosition(event: MouseEvent, centerId: string): void {
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    const position = calculateButtonPosition(event, rect);
+    this.timelineState.setHoverState(centerId, centerId, position);
   }
 
   public onHoverButtonClick(position: { x: number; y: number }): void {
@@ -206,7 +217,7 @@ export class TimelineComponent implements OnInit, OnDestroy {
     if (!scrollEl || !this.hoveredWorkCenterId) return;
 
     const scrollRect = scrollEl.getBoundingClientRect();
-    const xInTimeline = this.hoverService.clientXToTimelineX(
+    const xInTimeline = clientXToTimelineX(
       position.x,
       scrollRect,
       this.workCenterColumnWidth,
@@ -227,29 +238,16 @@ export class TimelineComponent implements OnInit, OnDestroy {
     const isOverBar = this.isOverOrderBar(event);
 
     const scrollRect = scrollEl.getBoundingClientRect();
-    const xInTimeline = this.hoverService.clientXToTimelineX(
+    const xInTimeline = clientXToTimelineX(
       event.clientX,
       scrollRect,
       this.workCenterColumnWidth,
       scrollEl.scrollLeft
     );
     const orders = this.getOrdersForCenter(centerId);
-    const bars = orders.map(order => this.calcBarStyle(order));
+    const bars = orders.map(order => this.getOrderBarStyle(order));
 
-    return this.hoverService.shouldShowHoverButton(isOverWorkCenter, isOverBar, xInTimeline, bars);
-  }
-
-  private updateHoverButtonPosition(event: MouseEvent, centerId: string): void {
-    const scrollEl = this.timelineScroll?.nativeElement;
-    if (!scrollEl) return;
-
-    if (this.shouldShowHoverButton(event, centerId, scrollEl)) {
-      const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-      const position = this.hoverService.calculateButtonPosition(event, rect);
-      this.timelineState.setHoverState(centerId, centerId, position);
-    } else {
-      this.timelineState.updateButtonPosition(null);
-    }
+    return isValidHoverButtonPosition(isOverWorkCenter, isOverBar, xInTimeline, bars);
   }
 
   // ---------------------------------------------------------------------------

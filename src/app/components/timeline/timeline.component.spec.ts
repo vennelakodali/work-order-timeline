@@ -78,32 +78,36 @@ describe('TimelineComponent', () => {
   });
 
   describe('Panel Operations', () => {
-    it('should open create panel with work center and date', () => {
-      timelineStateService.openPanel('create', 'wc-1', '2025-01-01', null);
+    it('should open create panel with work center and date', (done) => {
+      timelineStateService.openPanel('wc-1', '2025-01-01', null);
 
-      const panelState = timelineStateService.currentPanelState;
-      expect(panelState.isOpen).toBe(true);
-      expect(panelState.mode).toBe('create');
-      expect(panelState.workCenterId).toBe('wc-1');
-      expect(panelState.startDate).toBe('2025-01-01');
+      timelineStateService.panelState$.subscribe(panelState => {
+        expect(panelState.isOpen).toBe(true);
+        expect(panelState.workCenterId).toBe('wc-1');
+        expect(panelState.startDate).toBe('2025-01-01');
+        done();
+      });
     });
 
-    it('should open edit panel with work order data', () => {
-      timelineStateService.openPanel('edit', 'wc-1', '2025-01-01', mockWorkOrders[0]);
+    it('should open edit panel with work order data', (done) => {
+      timelineStateService.openPanel('wc-1', '2025-01-01', mockWorkOrders[0]);
 
-      const panelState = timelineStateService.currentPanelState;
-      expect(panelState.isOpen).toBe(true);
-      expect(panelState.mode).toBe('edit');
-      expect(panelState.editingOrder).toBe(mockWorkOrders[0]);
+      timelineStateService.panelState$.subscribe(panelState => {
+        expect(panelState.isOpen).toBe(true);
+        expect(panelState.editingOrder).toBe(mockWorkOrders[0]);
+        done();
+      });
     });
 
-    it('should close panel and reset state', () => {
-      timelineStateService.openPanel('create', 'wc-1', '2025-01-01', null);
+    it('should close panel and reset state', (done) => {
+      timelineStateService.openPanel('wc-1', '2025-01-01', null);
       timelineStateService.closePanel();
 
-      const panelState = timelineStateService.currentPanelState;
-      expect(panelState.isOpen).toBe(false);
-      expect(panelState.editingOrder).toBeNull();
+      timelineStateService.panelState$.subscribe(panelState => {
+        expect(panelState.isOpen).toBe(false);
+        expect(panelState.editingOrder).toBeNull();
+        done();
+      });
     });
   });
 
@@ -113,15 +117,16 @@ describe('TimelineComponent', () => {
       expect(mockWorkOrderService.deleteWorkOrder).toHaveBeenCalledWith('wo-1');
     });
 
-    it('should open edit panel for work order', () => {
-      component.onEditOrder(mockWorkOrders[0]);
+    it('should open edit panel for work order', (done) => {
+      component.openEditPanel(mockWorkOrders[0]);
 
-      const panelState = timelineStateService.currentPanelState;
-      expect(panelState.isOpen).toBe(true);
-      expect(panelState.mode).toBe('edit');
-      expect(panelState.editingOrder).toBe(mockWorkOrders[0]);
-      expect(panelState.workCenterId).toBe(mockWorkOrders[0].data.workCenterId);
-      expect(panelState.startDate).toBe(mockWorkOrders[0].data.startDate);
+      timelineStateService.panelState$.subscribe(panelState => {
+        expect(panelState.isOpen).toBe(true);
+        expect(panelState.editingOrder).toBe(mockWorkOrders[0]);
+        expect(panelState.workCenterId).toBe(mockWorkOrders[0].data.workCenterId);
+        expect(panelState.startDate).toBe(mockWorkOrders[0].data.startDate);
+        done();
+      });
     });
   });
 

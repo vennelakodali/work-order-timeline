@@ -48,25 +48,6 @@ describe('TimelineCalculationService', () => {
     });
   });
 
-  describe('getTotalWidth', () => {
-    it('should calculate total width correctly', () => {
-      const mockColumns = [
-        { label: 'Jan', startDate: new Date(), endDate: new Date() },
-        { label: 'Feb', startDate: new Date(), endDate: new Date() },
-        { label: 'Mar', startDate: new Date(), endDate: new Date() }
-      ];
-      const columnWidth = 160;
-
-      const totalWidth = service.getTotalWidth(mockColumns, columnWidth);
-
-      expect(totalWidth).toBe(480); // 3 * 160
-    });
-
-    it('should return 0 for empty columns', () => {
-      const totalWidth = service.getTotalWidth([], 160);
-      expect(totalWidth).toBe(0);
-    });
-  });
 
   describe('calculateBarStyle', () => {
     let mockConfig: TimelineColumnConfig;

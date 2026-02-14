@@ -30,8 +30,8 @@ import { STATUS_PILL_CONFIG } from '../../constants/status-config';
   ]
 })
 export class SlidePanelComponent implements OnInit {
-  @Input() public workCenterId = '';
-  @Input(({ required: true })) public startDate!: string;
+  @Input({ required: true }) public workCenterId!: string;
+  @Input({ required: true }) public startDate!: string;
   @Input() public editingOrder: WorkOrderDocument | null = null;
 
   @Output() public close = new EventEmitter<void>();

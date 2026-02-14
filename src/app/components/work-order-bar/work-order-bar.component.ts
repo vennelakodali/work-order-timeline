@@ -16,8 +16,7 @@ import { WORK_ORDER_BAR_CONFIG, STATUS_PILL_CONFIG } from '../../constants/statu
 })
 export class WorkOrderBarComponent {
   @Input() public order!: WorkOrderDocument;
-  @Input() public leftPx = 0;
-  @Input() public widthPx = 100;
+  @Input() public barStyle: { left: number; width: number } = { left: 0, width: 100 };
 
   @Output() public edit = new EventEmitter<WorkOrderDocument>();
   @Output() public delete = new EventEmitter<string>();

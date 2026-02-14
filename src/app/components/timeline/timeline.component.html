@@ -61,8 +61,7 @@
               <app-work-order-bar
                 *ngFor="let order of getOrdersForCenter(center.docId); trackBy: trackByOrder"
                 [order]="order"
-                [leftPx]="calcBarStyle(order).left"
-                [widthPx]="calcBarStyle(order).width"
+                [barStyle]="getOrderBarStyle(order)"
                 (click)="openEditPanel(order)"
                 (edit)="openEditPanel($event)"
                 (delete)="onDeleteOrder($event)"
@@ -101,7 +100,6 @@
 <ng-container *ngIf="panelState$ | async as panelState">
   <app-slide-panel
     *ngIf="panelState.isOpen"
-    [mode]="panelState.mode"
     [workCenterId]="panelState.workCenterId"
     [startDate]="panelState.startDate"
     [editingOrder]="panelState.editingOrder"

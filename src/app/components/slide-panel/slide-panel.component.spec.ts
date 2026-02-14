@@ -31,8 +31,7 @@ describe('SlidePanelComponent', () => {
   });
 
   describe('Form Initialization', () => {
-    it('should initialize form in create mode with default values', () => {
-      component.mode = 'create';
+    it('should initialize form for creating new order with default values', () => {
       component.workCenterId = 'wc-1';
       component.startDate = '2025-01-01';
       component.ngOnInit();
@@ -42,7 +41,7 @@ describe('SlidePanelComponent', () => {
       expect(component.form.get('status')?.value).toBe('open');
     });
 
-    it('should initialize form in edit mode with existing order data', () => {
+    it('should initialize form for editing order with existing order data', () => {
       const mockOrder = {
         docId: 'wo-1',
         docType: 'workOrder' as const,
@@ -55,8 +54,8 @@ describe('SlidePanelComponent', () => {
         }
       };
 
-      component.mode = 'edit';
       component.editingOrder = mockOrder;
+      component.workCenterId = 'wc-1';
       component.ngOnInit();
 
       expect(component.form.get('name')?.value).toBe('Test Order');
@@ -66,7 +65,6 @@ describe('SlidePanelComponent', () => {
 
   describe('Form Validation', () => {
     beforeEach(() => {
-      component.mode = 'create';
       component.workCenterId = 'wc-1';
       component.ngOnInit();
     });
@@ -104,7 +102,6 @@ describe('SlidePanelComponent', () => {
 
   describe('Form Submission', () => {
     beforeEach(() => {
-      component.mode = 'create';
       component.workCenterId = 'wc-1';
       component.ngOnInit();
     });
@@ -137,10 +134,9 @@ describe('SlidePanelComponent', () => {
       expect(component.saved.emit).toHaveBeenCalled();
     });
 
-    it('should update work order in edit mode', () => {
+    it('should update work order when editing', () => {
       mockWorkOrderService.updateWorkOrder.and.returnValue(null);
 
-      component.mode = 'edit';
       component.editingOrder = {
         docId: 'wo-1',
         docType: 'workOrder',
@@ -152,6 +148,7 @@ describe('SlidePanelComponent', () => {
           endDate: '2025-01-10'
         }
       };
+      component.workCenterId = 'wc-1';
       component.ngOnInit();
 
       component.form.patchValue({

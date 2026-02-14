@@ -4,15 +4,9 @@ import {
   generateTimelineColumns,
   TimelineColumnConfig
 } from '../utils/timeline-columns';
-import {
-  dateToPosition,
-  positionToDate,
-  getBarStyle
-} from '../utils/timeline-positioning';
 
 /**
  * Service for timeline position and column calculations.
- * Wraps existing utility functions and provides context-aware methods.
  */
 @Injectable({ providedIn: 'root' })
 export class TimelineCalculationService {
@@ -29,13 +23,9 @@ export class TimelineCalculationService {
     config: TimelineColumnConfig,
     totalWidth: number
   ): { left: number; width: number } {
-    return getBarStyle(
-      order.data.startDate,
-      order.data.endDate,
-      config.timelineStartDate,
-      config.timelineEndDate,
-      totalWidth
-    );
+    const left = this.dateToPosition(order.data.startDate, config, totalWidth);
+    const right = this.dateToPosition(order.data.endDate, config, totalWidth);
+    return { left, width: Math.max(right - left, 40) };
   }
 
   /**
@@ -48,46 +38,46 @@ export class TimelineCalculationService {
     workCenterColumnWidth: number
   ): number {
     const todayStr = new Date().toISOString().split('T')[0];
-    const positionInTimeline = dateToPosition(
-      todayStr,
-      columnConfig.timelineStartDate,
-      columnConfig.timelineEndDate,
-      totalWidth
-    );
+    const positionInTimeline = this.dateToPosition(todayStr, columnConfig, totalWidth);
     return workCenterColumnWidth + positionInTimeline;
   }
 
   /**
    * Convert a pixel X-position to an ISO date string.
-   * Wraps the positionToDate utility function.
    */
   public positionToDate(
     xPosition: number,
     config: TimelineColumnConfig,
     totalWidth: number
   ): string {
-    return positionToDate(
-      xPosition,
-      config.timelineStartDate,
-      config.timelineEndDate,
-      totalWidth
-    );
+    const { timelineStartDate, timelineEndDate } = config;
+    const start = timelineStartDate.getTime();
+    const end = timelineEndDate.getTime();
+    const ratio = xPosition / totalWidth;
+    const dateMs = start + ratio * (end - start);
+    return new Date(dateMs).toISOString().split('T')[0];
   }
 
   /**
    * Convert an ISO date string to a pixel X-position.
-   * Wraps the dateToPosition utility function.
    */
   public dateToPosition(
     dateStr: string,
     config: TimelineColumnConfig,
     totalWidth: number
   ): number {
-    return dateToPosition(
-      dateStr,
-      config.timelineStartDate,
-      config.timelineEndDate,
-      totalWidth
-    );
+    const { timelineStartDate, timelineEndDate } = config;
+    const date = new Date(dateStr).getTime();
+    const start = timelineStartDate.getTime();
+    const end = timelineEndDate.getTime();
+    const ratio = (date - start) / (end - start);
+    return ratio * totalWidth;
+  }
+
+  /**
+   * Check if a date falls within a given start and end range.
+   */
+  public isDateInRange(date: Date, startDate: Date, endDate: Date): boolean {
+    return date >= startDate && date < endDate;
   }
 }

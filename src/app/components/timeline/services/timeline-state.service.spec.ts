@@ -33,10 +33,6 @@ describe('TimelineStateService', () => {
         expect(rowId).toBe(testRowId);
       });
 
-      service.hoveredWorkCenterId$.subscribe(workCenterId => {
-        expect(workCenterId).toBe(testWorkCenterId);
-      });
-
       service.hoverButtonPosition$.subscribe(position => {
         expect(position).toEqual(testPosition);
         done();
@@ -52,10 +48,6 @@ describe('TimelineStateService', () => {
 
       service.hoveredRowId$.subscribe(rowId => {
         expect(rowId).toBeNull();
-      });
-
-      service.hoveredWorkCenterId$.subscribe(workCenterId => {
-        expect(workCenterId).toBeNull();
       });
 
       service.hoverButtonPosition$.subscribe(position => {
@@ -76,13 +68,9 @@ describe('TimelineStateService', () => {
         expect(position).toEqual(newPosition);
       });
 
-      // Row and work center should remain unchanged
+      // Row should remain unchanged
       service.hoveredRowId$.subscribe(rowId => {
         expect(rowId).toBe('row-1');
-      });
-
-      service.hoveredWorkCenterId$.subscribe(workCenterId => {
-        expect(workCenterId).toBe('wc-1');
         done();
       });
     });
@@ -106,7 +94,6 @@ describe('TimelineStateService', () => {
     it('should initialize with closed panel', (done) => {
       service.panelState$.subscribe(state => {
         expect(state.isOpen).toBe(false);
-        expect(state.mode).toBe('create');
         expect(state.workCenterId).toBe('');
         expect(state.startDate).toBe('');
         expect(state.editingOrder).toBeNull();
@@ -114,15 +101,14 @@ describe('TimelineStateService', () => {
       });
     });
 
-    it('should open panel in create mode', (done) => {
+    it('should open panel for creating new order', (done) => {
       const testWorkCenterId = 'wc-123';
       const testStartDate = '2024-06-01';
 
-      service.openPanel('create', testWorkCenterId, testStartDate, null);
+      service.openPanel(testWorkCenterId, testStartDate, null);
 
       service.panelState$.subscribe(state => {
         expect(state.isOpen).toBe(true);
-        expect(state.mode).toBe('create');
         expect(state.workCenterId).toBe(testWorkCenterId);
         expect(state.startDate).toBe(testStartDate);
         expect(state.editingOrder).toBeNull();
@@ -130,7 +116,7 @@ describe('TimelineStateService', () => {
       });
     });
 
-    it('should open panel in edit mode with order', (done) => {
+    it('should open panel for editing order', (done) => {
       const testOrder: WorkOrderDocument = {
         docId: 'wo-1',
         docType: 'workOrder',
@@ -143,11 +129,10 @@ describe('TimelineStateService', () => {
         }
       };
 
-      service.openPanel('edit', testOrder.data.workCenterId, testOrder.data.startDate, testOrder);
+      service.openPanel(testOrder.data.workCenterId, testOrder.data.startDate, testOrder);
 
       service.panelState$.subscribe(state => {
         expect(state.isOpen).toBe(true);
-        expect(state.mode).toBe('edit');
         expect(state.workCenterId).toBe(testOrder.data.workCenterId);
         expect(state.startDate).toBe(testOrder.data.startDate);
         expect(state.editingOrder).toEqual(testOrder);
@@ -168,85 +153,25 @@ describe('TimelineStateService', () => {
           endDate: '2024-07-15'
         }
       };
-      service.openPanel('edit', 'wc-123', '2024-06-01', testOrder);
+      service.openPanel('wc-123', '2024-06-01', testOrder);
 
       // Then close it
       service.closePanel();
 
       service.panelState$.subscribe(state => {
         expect(state.isOpen).toBe(false);
-        expect(state.mode).toBe('create');
         expect(state.workCenterId).toBe('');
         expect(state.startDate).toBe('');
         expect(state.editingOrder).toBeNull();
         done();
       });
     });
-
-    it('should provide synchronous access to current panel state', () => {
-      const testWorkCenterId = 'wc-sync';
-      const testStartDate = '2024-08-01';
-
-      service.openPanel('create', testWorkCenterId, testStartDate, null);
-
-      const currentState = service.currentPanelState;
-
-      expect(currentState.isOpen).toBe(true);
-      expect(currentState.mode).toBe('create');
-      expect(currentState.workCenterId).toBe(testWorkCenterId);
-      expect(currentState.startDate).toBe(testStartDate);
-    });
   });
 
-  describe('Timescale State', () => {
-    it('should initialize with Month timescale', (done) => {
-      service.timescale$.subscribe(timescale => {
-        expect(timescale).toBe('Month');
-        done();
-      });
-    });
-
-    it('should set timescale to Day', (done) => {
-      service.setTimescale('Day');
-
-      service.timescale$.subscribe(timescale => {
-        expect(timescale).toBe('Day');
-        done();
-      });
-    });
-
-    it('should set timescale to Week', (done) => {
-      service.setTimescale('Week');
-
-      service.timescale$.subscribe(timescale => {
-        expect(timescale).toBe('Week');
-        done();
-      });
-    });
-
-    it('should provide synchronous access to current timescale', () => {
-      service.setTimescale('Hour');
-
-      const currentTimescale = service.currentTimescale;
-
-      expect(currentTimescale).toBe('Hour');
-    });
-
-    it('should update timescale multiple times', (done) => {
-      service.setTimescale('Day');
-      service.setTimescale('Week');
-      service.setTimescale('Month');
-
-      service.timescale$.subscribe(timescale => {
-        expect(timescale).toBe('Month');
-        done();
-      });
-    });
-  });
 
   describe('State Isolation', () => {
     it('should not affect panel state when changing hover state', (done) => {
-      service.openPanel('create', 'wc-1', '2024-01-01', null);
+      service.openPanel('wc-1', '2024-01-01', null);
       service.setHoverState('row-1', 'wc-1', { x: 10, y: 10 });
 
       service.panelState$.subscribe(panelState => {
@@ -261,7 +186,7 @@ describe('TimelineStateService', () => {
 
     it('should not affect hover state when changing panel state', (done) => {
       service.setHoverState('row-1', 'wc-1', { x: 10, y: 10 });
-      service.openPanel('create', 'wc-2', '2024-02-01', null);
+      service.openPanel('wc-2', '2024-02-01', null);
 
       service.hoveredRowId$.subscribe(rowId => {
         expect(rowId).toBe('row-1');
